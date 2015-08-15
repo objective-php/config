@@ -1,0 +1,32 @@
+{
+  "name": "objective-php/config",
+  "description": "Config component for ObjectivePHP",
+  "type": "library",
+  "keywords": [
+    "config",
+    "objective-php"
+  ],
+  "homepage": "https://github.com/objective-php/config",
+  "license": "GPL-3.0",
+  "authors": [
+    {
+      "name": "Gauthier 'Rusty' Delamarre",
+      "email": "gauthier@objective-php.org",
+      "role": "lead"
+    }
+  ],
+  "require": {
+    "php": ">=5.6.0",
+    "objective-php/primitives": "dev-master",
+    "objective-php/matcher": "~1.0"
+  },
+  "require-dev": {
+    "objective-php/phpunit-extension": "1.0",
+    "phpunit/phpunit": "4.*"
+  },
+  "autoload": {
+    "psr-4": {
+      "ObjectivePHP\\Config\\": "src/"
+    }
+  }
+}
