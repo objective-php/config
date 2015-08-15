@@ -3,6 +3,7 @@
     namespace Test\ObjectivePHP\Config;
 
     use ObjectivePHP\Config\Config;
+    use ObjectivePHP\Config\Exception;
     use ObjectivePHP\PHPUnit\TestCase;
     use ObjectivePHP\Primitives\Merger\MergePolicy;
     use ObjectivePHP\Primitives\Merger\ValueMerger;
@@ -109,5 +110,26 @@
             $config->merge(new Config(['app.tokens' => 'second']));
 
             $this->assertEquals(['first', 'second'], $config->app->tokens);
+        }
+
+        public function testConfigForbidsToSetDirectivesMatchingSectionName()
+        {
+            $config = new Config(['app.version' => '1.0']);
+
+            $this->expectsException(function() use ($config)
+            {
+                $config->set('app', 'this is forbidden because app.version already exists!');
+            }, Exception::class, null, Exception::FORBIDDEN_DIRECTIVE_NAME);
+        }
+
+        public function testConfigForbidsToSetSectionsMatchingDirectiveName()
+        {
+            $config = new Config(['app.name' => 'my app']);
+            $config->setSection('app');
+
+            $this->expectsException(function() use ($config)
+            {
+                $config->set('name.version', 'this is forbidden because app already exists!');
+            }, Exception::class, null, Exception::FORBIDDEN_SECTION_NAME);
         }
     }

@@ -14,6 +14,10 @@
          */
         protected $section;
 
+        /**
+         * @var Matcher
+         */
+        protected $matcher;
 
         /**
          * @param array  $input
@@ -74,6 +78,47 @@
             return $subSet;
         }
 
+        /**
+         * Define a key and associate a value to it
+         *
+         * @param $key
+         * @param $value
+         *
+         * @todo Normalization has to happen twice in this implementation ; this should be prevented
+         * @return $this
+         * @throws Exception
+         */
+        public function set($directive, $value)
+        {
+
+            // normalize key
+            $this->getKeyNormalizers()->each(function ($normalizer) use (&$directive)
+            {
+                $normalizer($directive);
+            })
+            ;
+
+            foreach($this as $key => $val)
+            {
+                if ($this->getMatcher()->match($directive . '.*', $key))
+                {
+                    throw new Exception(sprintf('Setting directive "%s" is forbidden because it collides with a section name. Consider appending ".[directive-name]" to your directive key', $directive), Exception::FORBIDDEN_DIRECTIVE_NAME);
+                }
+
+                if ($this->getMatcher()->match($key . '.*', $directive))
+                {
+                    throw new Exception(sprintf('Setting directive "%s" is forbidden because it collides with another directive. Consider renaming your section', $directive), Exception::FORBIDDEN_SECTION_NAME);
+                }
+            }
+
+            return parent::set($directive, $value);
+        }
+
+
+        protected function validateDirectives()
+        {
+
+        }
         /**
          * Wrapper for of array_merge
          *
@@ -163,5 +208,31 @@
 
             return $config;
         }
+
+        /**
+         * @return Matcher
+         */
+        public function getMatcher()
+        {
+            if(is_null($this->matcher))
+            {
+                $this->matcher = new Matcher;
+            }
+
+            return $this->matcher;
+        }
+
+        /**
+         * @param Matcher $matcher
+         *
+         * @return $this
+         */
+        public function setMatcher(Matcher $matcher)
+        {
+            $this->matcher = $matcher;
+
+            return $this;
+        }
+
 
     }
