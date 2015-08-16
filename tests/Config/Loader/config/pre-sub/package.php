@@ -1,8 +1,6 @@
 <?php
 
-    use ObjectivePHP\Config\Config;
     use ObjectivePHP\Primitives\Merger\MergePolicy;
-    use ObjectivePHP\Primitives\Merger\ValueMerger;
 
     /*
 
