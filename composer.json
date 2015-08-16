@@ -18,7 +18,7 @@
   "require": {
     "php": ">=5.6.0",
     "objective-php/primitives": "dev-master",
-    "objective-php/matcher": "~1.0"
+    "objective-php/matcher": "dev-master"
   },
   "require-dev": {
     "objective-php/phpunit-extension": "1.0",
