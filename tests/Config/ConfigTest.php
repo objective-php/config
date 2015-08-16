@@ -132,4 +132,14 @@
                 $config->set('name.version', 'this is forbidden because app already exists!');
             }, Exception::class, null, Exception::FORBIDDEN_SECTION_NAME);
         }
+
+        public function testFluentAccess()
+        {
+            $config = new Config([
+                'a.b' => 'x',
+                'c.d' => ['y'],
+            ]);
+
+            $this->assertEquals(['y'], $config->c->d);
+        }
     }

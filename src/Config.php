@@ -78,6 +78,7 @@
             if(!$subSet->isEmpty())
             {
                 $subSet->setSection($key);
+
             }
 
             return $subSet;
@@ -160,23 +161,23 @@
         public function setSection($section)
         {
 
+            $this->section = $section;
             if(!is_null($section))
             {
-                // clear normalizers
-                $this->normalizers = new Collection();
+                // clear key normalizers
+                $this->keyNormalizers = new Collection();
+
+                $this->addKeyNormalizer(function (&$key)
+                {
+                    $prefix = $this->getSection() . '.';
+
+                    if (strpos($key, $prefix) !== 0)
+                    {
+                        $key = $prefix . $key;
+                    }
+                });
             }
 
-            $this->section = $section;
-
-            $this->addKeyNormalizer(function(&$key)
-            {
-                $prefix = $this->getSection() . '.';
-
-                if(strpos($key, $prefix) !== 0)
-                {
-                    $key = $prefix . $key;
-                }
-            });
 
             return $this;
         }
@@ -202,6 +203,7 @@
             $config = new Config($configData);
 
             if($section) $config->setSection($section);
+
             if($mergers)
             {
                 foreach($mergers as $keys => $merger)
