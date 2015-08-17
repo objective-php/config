@@ -4,6 +4,7 @@
 
 
     use ObjectivePHP\Config\Config;
+    use ObjectivePHP\Config\Exception;
     use ObjectivePHP\Config\Loader\DirectoryLoader;
     use ObjectivePHP\PHPUnit\TestCase;
     use ObjectivePHP\Primitives\Collection\Collection;
@@ -12,17 +13,22 @@
     {
 
 
+        public function testLoadingConfigFromNonExistingLocationFailsWithAnException()
+        {
+            $this->expectsException(function() use(&$location)
+            {
+                $loader = new DirectoryLoader();
+                $loader->load($location = uniqid(uniqid()));
+            }, Exception::class, $location, Exception::INVALID_LOCATION);
+        }
+
         public function testConfigTreeLoading()
         {
-
-
             $configLoader = new DirectoryLoader();
 
             $config = $configLoader->load(__DIR__ . '/config');
 
-
             $this->assertEquals($this->getExpectedConfig(), $config);
-
 
         }
 

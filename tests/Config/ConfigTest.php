@@ -4,6 +4,7 @@
 
     use ObjectivePHP\Config\Config;
     use ObjectivePHP\Config\Exception;
+    use ObjectivePHP\Matcher\Matcher;
     use ObjectivePHP\PHPUnit\TestCase;
     use ObjectivePHP\Primitives\Merger\MergePolicy;
     use ObjectivePHP\Primitives\Merger\ValueMerger;
@@ -96,6 +97,9 @@
             $config = Config::factory([
                 'section' => 'app',
                 'mergers' => ['tokens' => new ValueMerger(MergePolicy::COMBINE)],
+                'validators' => [
+                    function($value) { return true; }
+                ],
                 'directives' =>
                 [
                     'version' => '1.1',
@@ -141,5 +145,15 @@
             ]);
 
             $this->assertEquals(['y'], $config->c->d);
+        }
+
+        public function testMatcherAccessors()
+        {
+            $matcher = new Matcher();
+
+            $config = (new Config)->setMatcher($matcher);
+
+            $this->assertAttributeSame($matcher, 'matcher', $config);
+            $this->assertSame($matcher, $config->getMatcher());
         }
     }

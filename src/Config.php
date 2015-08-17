@@ -120,11 +120,6 @@
             return parent::set($directive, $value);
         }
 
-
-        protected function validateDirectives()
-        {
-
-        }
         /**
          * Wrapper for of array_merge
          *

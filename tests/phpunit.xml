@@ -20,7 +20,10 @@
          timeoutForLargeTests="60"
          verbose="false">
     <filter>
-        <whitelist>
+        <blacklist>
+            <directory suffix=".php">../vendor</directory>
+        </blacklist>
+        <whitelist processUncoveredFilesFromWhiteList="false">
             <directory>../src</directory>
         </whitelist>
     </filter>
