@@ -156,4 +156,14 @@
             $this->assertAttributeSame($matcher, 'matcher', $config);
             $this->assertSame($matcher, $config->getMatcher());
         }
+
+        public function testDefaultValueIsReturnedWhenRequestedDirectiveDoesNotExist()
+        {
+            $config = new Config(['x.y' => 'a']);
+
+
+            $default = $config->get('x.z', 'b');
+
+            $this->assertEquals('b', $default);
+        }
     }

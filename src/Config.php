@@ -78,10 +78,10 @@
             if(!$subSet->isEmpty())
             {
                 $subSet->setSection($key);
-
+                return $subSet;
             }
+            else return $default;
 
-            return $subSet;
         }
 
         /**
