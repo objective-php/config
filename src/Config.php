@@ -22,17 +22,10 @@
         protected $matcher;
 
         /**
-         * @param array  $input
-         * @param int    $flags
-         * @param string $iterator_class
+         * @var Config
          */
-        public function __construct($input = [], $flags = \ArrayObject::ARRAY_AS_PROPS, $iterator_class = "ArrayIterator")
-        {
-            // force ARRAY_AS_PROPS
-            $flags |= \ArrayObject::ARRAY_AS_PROPS;
+        protected $parent;
 
-            parent::__construct($input, $flags, $iterator_class);
-        }
 
         /**
          * Ease fluent interface
@@ -45,42 +38,25 @@
         public function get($key, $default = null)
         {
 
-            // if object has FQN key, return value
-            if($this->has($key))
+
+            // if section exists, return section
+            if($this->hasSection($key))
             {
-                return $this->toArray()[$key];
+                return $this->getClone($key);
             }
 
-            // also try using current section as prefix (if any)
-            if($section = $this->getSection())
-            {
-                $keyFQN = $this->section . '.' . $key;
+            $key = $this->computeCurrentSection($key);
 
-                if($this->has($keyFQN))
-                {
-                    return $this->toArray()[$keyFQN];
-                }
+            $target = $this->getParent() ?: $this;
+
+            if (isset($target->value[$key]))
+            {
+                return $target->value[$key];
             }
-
-            /**
-             * @var $subSet Config
-             */
-            $subSet = $this->copy();
-
-            $matcher = new Matcher();
-
-            $subSet->filter(function(&$value, $directive) use($subSet, $key, $matcher)
+            else
             {
-                return $matcher->match($key . '.*', $directive);
-
-            });
-
-            if(!$subSet->isEmpty())
-            {
-                $subSet->setSection($key);
-                return $subSet;
+                return $default;
             }
-            else return $default;
 
         }
 
@@ -96,6 +72,11 @@
          */
         public function set($directive, $value)
         {
+            // if a parent has been set, write to the parent, not the current object
+            if($parent = $this->getParent())
+            {
+                return $parent->set($directive, $value);
+            }
 
             // normalize key
             $this->getKeyNormalizers()->each(function ($normalizer) use (&$directive)
@@ -104,7 +85,7 @@
             })
             ;
 
-            foreach($this as $key => $val)
+            foreach($this->value as $key => $val)
             {
                 if ($this->getMatcher()->match($directive . '.*', $key))
                 {
@@ -139,6 +120,27 @@
             return parent::merge($data);
         }
 
+        public function toArray()
+        {
+
+            if(!$parent = $this->getParent())
+            {
+                return parent::toArray();
+            }
+            $directives = [];
+            $filter = $this->getSection() . '.*';
+
+            foreach($parent as $key => $value)
+            {
+                if($this->getMatcher()->match($filter, $key))
+                {
+                    $directives[$key] = $value;
+                }
+            }
+
+            return $directives;
+        }
+
 
         /**
          * @return string
@@ -157,25 +159,64 @@
         {
 
             $this->section = $section;
+
             if(!is_null($section))
             {
+
                 // clear key normalizers
                 $this->keyNormalizers = new Collection();
 
-                $this->addKeyNormalizer(function (&$key)
-                {
-                    $prefix = $this->getSection() . '.';
-
-                    if (strpos($key, $prefix) !== 0)
-                    {
-                        $key = $prefix . $key;
-                    }
-                });
+                $this->addKeyNormalizer($this->generateNormalizer($section));
             }
-
 
             return $this;
         }
+
+        protected function generateNormalizer($section)
+        {
+            return function (&$key) use($section)
+            {
+
+                if(!$section)
+                {
+                        return $key;
+                }
+
+                $prefix = $section . '.';
+
+                if (strpos($key, $prefix) !== 0)
+                {
+                    $key = $prefix . $key;
+                }
+            };
+        }
+
+        public function hasSection($section)
+        {
+            $section = $this->computeCurrentSection($section);
+            $keys = $this->getParent() ? $this->getParent()->keys() : $this->keys();
+
+            foreach($keys as $key)
+            {
+                if($this->getMatcher()->match($section . '.*', $key))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
+        public function hasDirective($directive)
+        {
+            $keys = $this->getParent() ? $this->getParent()->keys() : $this->keys();
+            foreach($this->keys() as $key)
+            {
+                if($key == $directive) return true;
+                else return false;
+            }
+        }
+
 
         /**
          * @param array $configData
@@ -195,9 +236,11 @@
                 $configData = $configData['directives'];
             }
 
-            $config = new Config($configData);
+            $config = new Config();
 
             if($section) $config->setSection($section);
+
+            $config->fromArray($configData);
 
             if($mergers)
             {
@@ -215,6 +258,10 @@
             if($validators) {
                 foreach($validators as $validator) $config->addValidator($validator);
             }
+
+            // unset section to prevent mis-computation of FQN for directives
+            $config->setSection(null);
+
 
             return $config;
         }
@@ -244,5 +291,80 @@
             return $this;
         }
 
+        /**
+         * @return Config
+         */
+        public function getParent()
+        {
+            return $this->parent;
+        }
 
+        /**
+         * @param Config $parent
+         *
+         * @return $this
+         */
+        public function setParent($parent)
+        {
+            $this->parent = $parent;
+
+            return $this;
+        }
+
+
+
+        public function __get($key)
+        {
+
+            if($value = $this->get($key)) return $value;
+
+            $config = $this->getClone($key);
+
+            return $config;
+
+        }
+
+        public function __set($directive, $value)
+        {
+            if ($currentSection = $this->getSection())
+            {
+                $directive = $currentSection . '.' . $directive;
+            }
+
+            $this->set($directive, $value);
+        }
+
+        protected function getClone($key)
+        {
+            $section = $this->computeCurrentSection($key);
+
+            $target = $this->getParent() ?: $this;
+
+            if (isset($target[$section])) return $target->$section;
+
+            $config = clone $this;
+
+            // shunt setSection to prevent keys from being prefixed with current section
+            $config->section = $section;
+            $this->keyNormalizers = new Collection([$this->generateNormalizer($section)]);
+            $config->setParent($this->getParent() ?: $this);
+
+            return $config;
+        }
+        public function __clone()
+        {
+            $this->parent = null;
+            $this->value = [];
+        }
+
+        public function computeCurrentSection($section)
+        {
+            ;
+            if ($currentSection = $this->getSection())
+            {
+                $section = $currentSection . '.' . $section;
+            }
+
+            return $section;
+        }
     }

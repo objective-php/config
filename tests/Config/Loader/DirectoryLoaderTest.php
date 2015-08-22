@@ -28,7 +28,7 @@
 
             $config = $configLoader->load(__DIR__ . '/config');
 
-            $this->assertEquals($this->getExpectedConfig(), $config);
+            $this->assertEquals($this->getExpectedConfig()->toArray(), $config->toArray());
 
         }
 
