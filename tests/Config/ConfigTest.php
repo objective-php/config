@@ -104,7 +104,8 @@
                 [
                     'app.version' => '1.1',
                     'environment' => 'dev',
-                    'tokens' => 'first'
+                    'tokens' => 'first',
+                    'other.section' => 'test'
                 ]
             ]);
 
@@ -112,7 +113,23 @@
 
             $config->merge(new Config(['app.tokens' => 'second']));
 
+            $this->assertEquals('test', $config->app->other->section);
             $this->assertEquals(['first', 'second'], $config->app->tokens->toArray());
+        }
+
+
+        public function testFactoryWithoutSection()
+        {
+            $config = Config::factory([
+                'app.version'   => '1.1',
+                'environment'   => 'dev',
+                'tokens'        => 'first',
+                'other.directive' => 'test'
+            ]);
+
+            var_Dump($config->toArray());
+
+            $this->assertEquals('test', $config->other->directive);
         }
 
         public function testConfigForbidsToSetDirectivesMatchingSectionName()

@@ -340,7 +340,7 @@
 
             $target = $this->getParent() ?: $this;
 
-            if (isset($target[$section])) return $target->$section;
+            if (isset($target[$section])) return $target[$section];
 
             $config = clone $this;
 
