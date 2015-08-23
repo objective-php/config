@@ -208,8 +208,7 @@
 
 
             $config['a']['d.c'] = 'yeah';
-            
-            var_dump($config->toArray());
+
             $this->assertEquals('yeah', $config->get('a')['d']->c);
 
         }
