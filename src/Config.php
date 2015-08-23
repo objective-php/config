@@ -176,12 +176,6 @@
         {
             return function (&$key) use($section)
             {
-
-                if(!$section)
-                {
-                        return $key;
-                }
-
                 $prefix = $section . '.';
 
                 if (strpos($key, $prefix) !== 0)
@@ -210,11 +204,12 @@
         public function hasDirective($directive)
         {
             $keys = $this->getParent() ? $this->getParent()->keys() : $this->keys();
-            foreach($this->keys() as $key)
+            foreach($keys as $key)
             {
                 if($key == $directive) return true;
-                else return false;
             }
+
+            return false;
         }
 
 
@@ -345,14 +340,16 @@
             $config = clone $this;
 
             // shunt setSection to prevent keys from being prefixed with current section
-            $config->section = $section;
-            $this->keyNormalizers = new Collection([$this->generateNormalizer($section)]);
+            //$config->section = $section;
+            //$config->keyNormalizers = new Collection([$this->generateNormalizer($section)]);
+            $config->setSection($section);
             $config->setParent($this->getParent() ?: $this);
 
             return $config;
         }
         public function __clone()
         {
+            $this->keyNormalizers = null;
             $this->parent = null;
             $this->value = [];
         }
@@ -366,5 +363,10 @@
             }
 
             return $section;
+        }
+
+        public function offsetSet($index, $value)
+        {
+            $this->__set($index, $value);
         }
     }
