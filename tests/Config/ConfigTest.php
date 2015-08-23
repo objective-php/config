@@ -127,8 +127,6 @@
                 'other.directive' => 'test'
             ]);
 
-            var_Dump($config->toArray());
-
             $this->assertEquals('test', $config->other->directive);
         }
 
@@ -191,24 +189,11 @@
         {
             $config = new Config;
 
-            //$newSection = $config->newSection;
-
-            //$this->assertSame($config, $newSection->getParent());
-
-            //$this->assertEquals('newSection', $newSection->getSection());
-            //$this->assertEquals('testSection.subSection', $config->testSection->subSection->getSection());
-
-            //$config->directive = 'test';
             $config->z = 'test_z';
             $config->a->b->c = 'test_a_b_c';
             $config->x->y = 'test_x_y';
             $config->a->d->c = 'test_a_d_c';
             $config->a->d->e = 'test_a_d_e';
-
-            //$config->testSection->directive = 'test';
-            // var_dump($config);
-            //var_dump($config->a->b->c);
-//            var_dump($config->a->b->c = 3);
 
             $this->assertEquals('test_z', $config->z);
             $this->assertEquals('test_x_y', $config->x->y);
@@ -221,17 +206,8 @@
             $this->assertEquals('test_a_d_c', $config->get('a')->d['c']);
             $this->assertEquals('test_a_d_c', $config->get('a')['d']->c);
 
-            //$config['a']['d']['c']='e';
-            //$config['a']['d']->c='e';
-
             $config['a']['d.c'] = 'yeah';
-            // var_Dump($config);
             $this->assertEquals('yeah', $config->get('a')['d']->c);
-
-            //$config['a']['d.c']='e';
-
-            //var_dump($config->toArray());
-
 
         }
     }
