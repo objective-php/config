@@ -32,24 +32,40 @@
                 if ($entry->getExtension() != 'php') continue;
 
                 // get config data
-
-                $config->merge($this->import($entry));
+                $importedConfig = $this->import($entry, $config);
+                if($importedConfig)
+                {
+                    $config->merge($importedConfig);
+                }
             }
 
             return $config;
         }
 
-        protected function import($file)
+        /**
+         * @param $file
+         * @param $config Config Make $config available in imported config file to manipulate it directly
+         *
+         * @return mixed
+         */
+        protected function import($file, $config)
         {
+            $originalConfig = spl_object_hash($config);
 
-            $config = include $file;
+            $importedConfig = (($importedConfig = include $file) !== 1) ? $importedConfig : null;
 
-            if(!$config instanceof Config)
+            // prevent current config overwriting
+            if(spl_object_hash($config) != $originalConfig)
             {
-                $config = Config::factory($config);
+                throw new Exception(sprintf('$config has been overwritten while importing "%s" ; please do not assign a value to $config in your config files', $file));
             }
 
-            return $config;
+            if($importedConfig && !$importedConfig instanceof Config)
+            {
+                $importedConfig = Config::factory($importedConfig);
+            }
+
+            return $importedConfig;
         }
 
     }

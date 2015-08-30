@@ -41,7 +41,8 @@
                 'app.env'     => 'prod',
                 'package.token' => 'token',
                 'packages.loaded' => new Collection(['pre', 'sub']),
-                'package.pre.version' => '0.1b'
+                'package.pre.version' => '0.1b',
+                'add.key' => 'added'
 
             ]);
 

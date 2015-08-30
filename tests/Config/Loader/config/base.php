@@ -3,13 +3,9 @@
 
     return [
 
-        'section' => 'app',
-        'directives' => [
+        'app.version' => '1.0',
+        'app.env'     => 'dev'
 
-            'version' => '1.0',
-            'env'     => 'dev'
-
-        ]
     ];
 
 

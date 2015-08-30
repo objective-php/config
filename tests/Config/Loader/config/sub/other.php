@@ -2,7 +2,7 @@
 
     use ObjectivePHP\Config\Config;
 
-    $config = new Config([
+    $otherConfig = new Config([
         'app.env'         => 'prod',
         'packages.loaded' => 'sub'
     ]);
@@ -14,4 +14,4 @@
 
     ]);
 
-    return $config->merge($extra);
+    return $otherConfig->merge($extra);
