@@ -42,7 +42,8 @@
                 'package.token' => 'token',
                 'packages.loaded' => new Collection(['pre', 'sub']),
                 'package.pre.version' => '0.1b',
-                'add.key' => 'added'
+                'add.key' => 'added',
+                'sub.key' => 'test'
 
             ]);
 

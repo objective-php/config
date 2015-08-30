@@ -7,7 +7,13 @@
     use ObjectivePHP\Primitives\Collection\Collection;
     use ObjectivePHP\Primitives\Merger\MergerInterface;
     use ObjectivePHP\Primitives\Merger\ValueMerger;
+    use ObjectivePHP\Primitives\String\String;
 
+    /**
+     * Class Config
+     *
+     * @package ObjectivePHP\Config
+     */
     class Config extends Collection implements ConfigInterface
     {
 
@@ -72,33 +78,39 @@
          */
         public function set($directive, $value)
         {
+            // normalize key
+            $this->getKeyNormalizers()->each(function ($normalizer) use (&$directive)
+            {
+                $normalizer($directive);
+            });
+
             // if a parent has been set, write to the parent, not the current object
             if($parent = $this->getParent())
             {
                 return $parent->set($directive, $value);
             }
 
-            // normalize key
-            $this->getKeyNormalizers()->each(function ($normalizer) use (&$directive)
-            {
-                $normalizer($directive);
-            })
-            ;
-
             foreach($this->value as $key => $val)
             {
                 if ($this->getMatcher()->match($directive . '.*', $key))
                 {
-                    throw new Exception(sprintf('Setting directive "%s" is forbidden because it collides with a section name. Consider appending ".[directive-name]" to your directive key', $directive), Exception::FORBIDDEN_DIRECTIVE_NAME);
+                    throw new Exception(sprintf('Setting directive "%s" is forbidden because it collides with section "%s". Consider appending ".[directive-name]" to your directive key.', $directive, $key), Exception::FORBIDDEN_DIRECTIVE_NAME);
                 }
 
                 if ($this->getMatcher()->match($key . '.*', $directive))
                 {
-                    throw new Exception(sprintf('Setting directive "%s" is forbidden because it collides with another directive. Consider renaming your section', $directive), Exception::FORBIDDEN_SECTION_NAME);
+                    throw new Exception(sprintf('Setting section "%s" is forbidden because it collides with directive "%s". Consider renaming your section.', $directive, $key), Exception::FORBIDDEN_SECTION_NAME);
                 }
             }
 
-            return parent::set($directive, $value);
+            if($value instanceof Config)
+            {
+
+                $this->__get($directive)->fromArray($value);
+            }
+            else parent::set($directive, $value);
+
+            return $this;
         }
 
         /**
@@ -108,39 +120,198 @@
          *
          * @return $this
          */
+        /**
+         * Merge a collection into another
+         *
+         * @param $data mixed Data to merge (will be casted to Collection)
+         *
+         * @return $this
+         */
         public function merge($data)
         {
-            $data = Config::cast($data);
 
-            foreach($data->getMergers() as $keys => $merger)
+            if($parent = $this->getParent())
             {
-                $this->addMerger($keys, $merger);
+                return $parent->merge($data);
             }
 
-            return parent::merge($data);
+            $data    = Config::cast($data);
+            // get mergers from merged data
+            $data->getMergers()->each(function($merger, $key) {
+                $this->addMerger($key, $merger);
+            });
+
+            $mergers = $this->getMergers();
+
+
+            if (!$mergers->isEmpty())
+            {
+                // prepare data by manually merging some keys
+                foreach ($mergers as $key => $merger)
+                {
+                    if (isset($data[$key]) && isset($this[$key]))
+                    {
+                        $data[$key] = $merger->merge($this[$key], $data[$key]);
+                    }
+                }
+            }
+
+            $data->each(function($value, $key) {
+                $this->set($key, $value);
+            });
+
+            return $this;
         }
 
+        /**
+         * Add a merger
+         *
+         * @param                 $keys
+         * @param MergerInterface $merger
+         *
+         * @return $this
+         */
+        public function addMerger($keys, MergerInterface $merger)
+        {
+            if ($parent = $this->getParent())
+            {
+                // normalize keys first
+                $keys = Collection::cast($keys);
+
+                $keys->each(function(&$key) {
+                   $this->getKeyNormalizers()->each(function($normalizer) use(&$key){
+                      $normalizer($key);
+                   });
+                });
+
+                return $parent->addMerger($keys, $merger);
+            }
+
+            return parent::addMerger($keys, $merger);
+        }
+
+
+        /**
+         *
+         */
         public function toArray()
         {
-
-            if(!$parent = $this->getParent())
+            $array = [];
+            $source = $this->getParent() ?: $this;
+            $section = $this->getSection();
+            $filter = false;
+            if($section)
             {
-                return parent::toArray();
+                $matcher = $this->getMatcher();
+                $filter = $section . '.*';
             }
-            $directives = [];
-            $filter = $this->getSection() . '.*';
 
-            foreach($parent as $key => $value)
+            foreach($source->value as $key => $value)
             {
-                if($this->getMatcher()->match($filter, $key))
+
+                if($filter && !$matcher->match($filter, $key))
                 {
-                    $directives[$key] = $value;
+                    // skip current key
+                    continue;
                 }
+
+                $key = $this->getRelativeDirectiveName($key);
+
+                $sections = explode('.', $key);
+
+                $directive = array_pop($sections);
+
+                $currentLevelArray = &$array;
+
+                foreach($sections as $section)
+                {
+                    if(!isset($currentLevelArray[$section]))
+                    {
+                        $currentLevelArray[$section] = [];
+                    }
+                    $currentLevelArray = &$currentLevelArray[$section];
+                }
+                $currentLevelArray[$directive] = $value;
+            }
+
+            return $array;
+        }
+
+
+
+        public function getRelativeDirectiveName($directive)
+        {
+            $section = $this->getSection();
+            if($section)
+            {
+                if (strpos($directive, $section . '.') === 0)
+                {
+                    $directive = substr($directive, strlen($section) + 1);
+                }
+            }
+
+            return $directive;
+
+        }
+
+        public function getCurrentLevelDirectiveName($directive)
+        {
+            $section   = $this->getSection();
+            $directive = $this->getRelativeDirectiveName($directive);
+            if(!$directive)
+            {
+                return null;
+            }
+
+            if ((string) $section)
+            {
+                $directive = $section . '.' . $directive;
+            }
+
+            return $directive;
+        }
+
+        /**
+         * @return array
+         * @throws \ObjectivePHP\Matcher\Exception
+         */
+        public function getDirectives()
+        {
+
+            $directives = [];
+            $filter = false;
+            if($section = $this->getSection())
+            {
+                $filter = $this->getSection() . '.*';
+            }
+
+            $source = $this->getParent() ?: $this;
+            foreach($source->value as $key => $value)
+            {
+                if($filter && !$this->getMatcher()->match($filter, $key)) continue;
+
+                $directives[$key] = $value;
             }
 
             return $directives;
         }
 
+        /**
+         * @param $directives
+         *
+         * @return $this
+         */
+        public function fromArray($directives)
+        {
+            $directives = Config::cast($directives);
+
+            foreach($directives as $key => $value)
+            {
+                $this->set($key, $value);
+            }
+
+            return $this;
+        }
 
         /**
          * @return string
@@ -162,7 +333,6 @@
 
             if(!is_null($section))
             {
-
                 // clear key normalizers
                 $this->keyNormalizers = new Collection();
 
@@ -172,7 +342,29 @@
             return $this;
         }
 
-        protected function generateNormalizer($section)
+
+        public function addKeyNormalizer(callable $normalizer)
+        {
+            // applies normalizer to currently stored entries
+            $data = $this->getDirectives();
+            $this->clear();
+
+            foreach ($data as $key => $value)
+            {
+                $normalizer($key);
+                $this->set($key, $value);
+            }
+
+            // stack the new normalizer
+            $this->getKeyNormalizers()[] = $normalizer;
+
+            return $this;
+        }
+        /**
+         * @param $section
+         *
+         * @return \Closure
+         */protected function generateNormalizer($section)
         {
             return function (&$key) use($section)
             {
@@ -185,10 +377,17 @@
             };
         }
 
+        /**
+         * @param $section
+         *
+         * @return bool
+         * @throws \ObjectivePHP\Matcher\Exception
+         */
         public function hasSection($section)
         {
             $section = $this->computeCurrentSection($section);
-            $keys = $this->getParent() ? $this->getParent()->keys() : $this->keys();
+            $source = $this->getParent() ?: $this;
+            $keys = array_keys($source->value);
 
             foreach($keys as $key)
             {
@@ -201,15 +400,19 @@
         }
 
 
+        /**
+         * @param $directive
+         *
+         * @return bool
+         */
         public function hasDirective($directive)
         {
-            $keys = $this->getParent() ? $this->getParent()->keys() : $this->keys();
-            foreach($keys as $key)
-            {
-                if($key == $directive) return true;
-            }
 
-            return false;
+            $source = $this->getParent() ?: $this;
+            $keys = array_keys($source->value);
+
+            return \array_key_exists($directive, array_flip($keys));
+
         }
 
 
@@ -233,9 +436,12 @@
 
             $config = new Config();
 
-            if($section) $config->setSection($section);
+            if($section) $config = $config->__get($section);
 
-            $config->fromArray($configData);
+            foreach($configData as $key => $value)
+            {
+                $config->set($key, $value);
+            }
 
             if($mergers)
             {
@@ -307,8 +513,11 @@
         }
 
 
-
-        public function __get($key)
+        /**
+         * @param $key
+         *
+         * @return mixed|null|Config
+         */public function __get($key)
         {
 
             if($value = $this->get($key)) return $value;
@@ -319,7 +528,12 @@
 
         }
 
-        public function __set($directive, $value)
+        /**
+         * @param $directive
+         * @param $value
+         *
+         * @throws Exception
+         */public function __set($directive, $value)
         {
             if ($currentSection = $this->getSection())
             {
@@ -329,7 +543,11 @@
             $this->set($directive, $value);
         }
 
-        protected function getClone($key)
+        /**
+         * @param $key
+         *
+         * @return mixed|null|Config
+         */protected function getClone($key)
         {
             $section = $this->computeCurrentSection($key);
 
@@ -347,6 +565,10 @@
 
             return $config;
         }
+
+        /**
+         *
+         */
         public function __clone()
         {
             $this->keyNormalizers = null;
@@ -354,7 +576,11 @@
             $this->value = [];
         }
 
-        public function computeCurrentSection($section)
+        /**
+         * @param $section
+         *
+         * @return string
+         */public function computeCurrentSection($section)
         {
             ;
             if ($currentSection = $this->getSection())
@@ -365,6 +591,10 @@
             return $section;
         }
 
+        /**
+         * @param mixed $index
+         * @param mixed $value
+         */
         public function offsetSet($index, $value)
         {
             $this->__set($index, $value);

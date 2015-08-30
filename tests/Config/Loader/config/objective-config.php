@@ -5,3 +5,7 @@
 
     // amend configuration by manipulating the $config object available in scope
     $config->add->key = 'added';
+
+    $subConfig = $config->sub;
+
+    $subConfig->key = 'test';

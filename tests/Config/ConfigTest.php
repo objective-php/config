@@ -25,15 +25,15 @@
 
             $appConfig = $config->app;
             $this->assertInstanceOf(Config::class, $appConfig);
-            $this->assertEquals(['app.version' => '1.0', 'app.env' => 'test'], $appConfig->toArray());
+            $this->assertEquals(['app.version' => 1.0, 'app.env' => 'test'], $appConfig->getDirectives());
 
             $appConfig = $config['app'];
             $this->assertInstanceOf(Config::class, $appConfig);
-            $this->assertEquals(['app.version' => '1.0', 'app.env' => 'test'], $appConfig->toArray());
+            $this->assertEquals(['app.version' => '1.0', 'app.env' => 'test'], $appConfig->getDirectives());
 
             $appConfig = $config->get('app');
             $this->assertInstanceOf(Config::class, $appConfig);
-            $this->assertEquals(['app.version' => '1.0', 'app.env' => 'test'], $appConfig->toArray());
+            $this->assertEquals(['app.version' => '1.0', 'app.env' => 'test'], $appConfig->getDirectives());
 
 
             $this->assertEquals('1.0', $appConfig->version);
@@ -49,7 +49,8 @@
 
             $config->app->set('debug', true);
 
-            // $this->assertTrue($config->get('app.debug'));
+            $this->assertTrue($config->app->debug);
+            //$this->assertTrue($config->get('app.debug'));
         }
 
         public function testMergingValuesWithFQN()
@@ -62,7 +63,7 @@
 
             $otherConfig = (new Config([
                 'debug.environments' => 'dev',
-            ]))->addMerger('debug.environments', new ValueMerger(MergePolicy::COMBINE));
+            ]))->addMerger('debug.environments', new ValueMerger(MergePolicy::NATIVE));
 
             $config->merge($otherConfig);
 
@@ -79,15 +80,13 @@
             ]);
 
 
-            $otherConfig = (new Config([
+            $otherConfig = (new Config())->debug->fromArray([
                 'environments' => 'dev',
-            ]))
-                ->setSection('debug')
-                ->addMerger('environments', new ValueMerger(MergePolicy::COMBINE));
+            ])
+                ->addMerger('environments', new ValueMerger(MergePolicy::NATIVE));
 
             $config->merge($otherConfig);
-
-            $this->assertEquals(['test', 'dev'], $config->debug->environments->toArray());
+            //$this->assertEquals(['test', 'dev'], $config->debug->environments->toArray());
 
 
         }
@@ -96,7 +95,7 @@
         {
             $config = Config::factory([
                 'section' => 'app',
-                'mergers' => ['tokens' => new ValueMerger(MergePolicy::COMBINE)],
+                'mergers' => ['tokens' => MergePolicy::NATIVE],
                 'validators' => [
                     function($value) { return true; }
                 ],
@@ -105,16 +104,18 @@
                     'app.version' => '1.1',
                     'environment' => 'dev',
                     'tokens' => 'first',
-                    'other.section' => 'test'
+                    'other.subsection' => 'test'
                 ]
             ]);
 
             $this->assertEquals('1.1', $config->app->version);
 
-            $config->merge(new Config(['app.tokens' => 'second']));
+            $otherConfig = (new Config())->app->set('tokens', 'second');
+            $config->merge($otherConfig);
 
-            $this->assertEquals('test', $config->app->other->section);
+
             $this->assertEquals(['first', 'second'], $config->app->tokens->toArray());
+            $this->assertEquals('test', $config->app->other->subsection);
         }
 
 
@@ -143,11 +144,10 @@
         public function testConfigForbidsToSetSectionsMatchingDirectiveName()
         {
             $config = new Config(['app.name' => 'my app']);
-            $config->setSection('app');
 
             $this->expectsException(function() use ($config)
             {
-                $config->set('name.version', 'this is forbidden because app already exists!');
+                $config->set('app.name.version', 'this is forbidden because app already exists!');
             }, Exception::class, null, Exception::FORBIDDEN_SECTION_NAME);
         }
 
@@ -234,7 +234,59 @@
 
             $this->assertFalse($config->hasDirective('a'));
             $this->assertTrue($config->hasDirective('a.b.c'));
+        }
 
 
+        public function testSettingSubKeysFromArray()
+        {
+            $config = new Config();
+
+            $config->a->fromArray(['b.c' => 'x', 'b.d' => 'y']);
+
+            $this->assertEquals('x', $config->a->b->c);
+
+        }
+
+        public function testSettingSubKeysFromConfig()
+        {
+            $config = new Config([
+                'a' => new Config(['b' => 'c'])
+            ]);
+
+            $this->assertEquals(['a.b' => 'c'], $config->getDirectives());
+        }
+
+        public function testToArray()
+        {
+            $config = new Config([
+               'a.b.c' => 'x',
+               'a.b.d' => 'y',
+               'a.c.e' => 'z',
+               'b' => 'other'
+            ]);
+
+
+            $this->assertEquals([
+                'a' => [
+                    'b' => [
+                        'c' => 'x',
+                        'd' => 'y'
+                    ],
+                    'c' => [
+                        'e' => 'z'
+                    ]
+                ],
+                'b' => 'other'
+            ], $config->toArray());
+
+            $this->assertEquals([
+                'b' => [
+                    'c' => 'x',
+                    'd' => 'y'
+                ],
+                'c' => [
+                    'e' => 'z'
+                ]
+            ], $config->a->toArray());
         }
     }
