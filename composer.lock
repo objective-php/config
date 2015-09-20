@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/objective-php/matcher.git",
-                "reference": "84adadd2bbb09f05254cb57668d128cde1dc79ac"
+                "reference": "321d27bcb933f62d2784e7e49411e4bc7fab3433"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/objective-php/matcher/zipball/84adadd2bbb09f05254cb57668d128cde1dc79ac",
-                "reference": "84adadd2bbb09f05254cb57668d128cde1dc79ac",
+                "url": "https://api.github.com/repos/objective-php/matcher/zipball/321d27bcb933f62d2784e7e49411e4bc7fab3433",
+                "reference": "321d27bcb933f62d2784e7e49411e4bc7fab3433",
                 "shasum": ""
             },
             "require": {
@@ -50,7 +50,7 @@
                 "matcher",
                 "objective php"
             ],
-            "time": "2015-08-03 19:12:03"
+            "time": "2015-09-07 23:45:46"
         },
         {
             "name": "objective-php/phpunit-extension",
@@ -103,12 +103,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/objective-php/primitives.git",
-                "reference": "46c9a50d30e2eff50193915b8b3bd057c8fbecb0"
+                "reference": "d2fecbd5b3df337f2b8d6e6f755cb63ffd40b72c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/objective-php/primitives/zipball/46c9a50d30e2eff50193915b8b3bd057c8fbecb0",
-                "reference": "46c9a50d30e2eff50193915b8b3bd057c8fbecb0",
+                "url": "https://api.github.com/repos/objective-php/primitives/zipball/d2fecbd5b3df337f2b8d6e6f755cb63ffd40b72c",
+                "reference": "d2fecbd5b3df337f2b8d6e6f755cb63ffd40b72c",
                 "shasum": ""
             },
             "require": {
@@ -149,7 +149,7 @@
                 "objective php",
                 "primitives"
             ],
-            "time": "2015-08-22 13:31:21"
+            "time": "2015-09-13 10:42:51"
         }
     ],
     "packages-dev": [
@@ -558,16 +558,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "4.8.5",
+            "version": "4.8.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "9b7417edaf28059ea63d86be941e6004dbfcc0cc"
+                "reference": "2246830f4a1a551c67933e4171bf2126dc29d357"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/9b7417edaf28059ea63d86be941e6004dbfcc0cc",
-                "reference": "9b7417edaf28059ea63d86be941e6004dbfcc0cc",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/2246830f4a1a551c67933e4171bf2126dc29d357",
+                "reference": "2246830f4a1a551c67933e4171bf2126dc29d357",
                 "shasum": ""
             },
             "require": {
@@ -626,7 +626,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2015-08-19 09:20:57"
+            "time": "2015-08-24 04:09:38"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -1057,16 +1057,16 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v2.7.3",
+            "version": "v2.7.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Yaml.git",
-                "reference": "71340e996171474a53f3d29111d046be4ad8a0ff"
+                "reference": "2dc7b06c065df96cc686c66da2705e5e18aef661"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Yaml/zipball/71340e996171474a53f3d29111d046be4ad8a0ff",
-                "reference": "71340e996171474a53f3d29111d046be4ad8a0ff",
+                "url": "https://api.github.com/repos/symfony/Yaml/zipball/2dc7b06c065df96cc686c66da2705e5e18aef661",
+                "reference": "2dc7b06c065df96cc686c66da2705e5e18aef661",
                 "shasum": ""
             },
             "require": {
@@ -1102,7 +1102,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2015-07-28 14:07:07"
+            "time": "2015-08-24 07:13:45"
         }
     ],
     "aliases": [],

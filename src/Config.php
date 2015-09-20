@@ -153,21 +153,27 @@
                 {
                     if (isset($data[$key]) && isset($this[$key]))
                     {
-                        $data[$key] = $merger->merge($this[$key], $data[$key]);
-                        $mergedData[] = $key;
+                        $data[$key] = $merger->merge($this[$key], $data[$key])->toArray();
+                        $mergedData[$key] = true;
                     }
                 }
             }
 
-            $data->each(function($value, $key)
+            $data->each(function($value, $key) use($mergedData)
             {
-                    // default merging strategy is native
-
+                // apply default merging strategies
                 if(!isset($mergedData[$key]) && $this->has($key))
                 {
-                    $valueToMerge = Collection::cast($value)->toArray();
-                    $currentValue = Collection::cast($this->get($key))->toArray();
-                    $value = array_merge_recursive($currentValue, $value);
+                    //get current value
+                    $currentValue = $this->get($key);
+
+                    // merge if one of the values is an array
+                    if(is_array($value) || is_array($currentValue) || $value instanceof Collection || $currentValue instanceof Collection)
+                    {
+                        $currentValue = Collection::cast($currentValue)->toArray();
+                        $valueToMerge = Collection::cast($value)->toArray();
+                        $value        = array_merge_recursive($currentValue, $valueToMerge);
+                    }
                 }
 
                 $this->set($key, $value);

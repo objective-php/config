@@ -40,7 +40,7 @@
                 'app.version' => '1.0',
                 'app.env'     => 'prod',
                 'package.token' => 'token',
-                'packages.loaded' => new Collection(['pre', 'sub']),
+                'packages.loaded' => ['pre', 'sub'],
                 'package.pre.version' => '0.1b',
                 'add.key' => 'added',
                 'sub.key' => 'test'

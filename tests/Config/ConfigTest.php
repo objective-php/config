@@ -67,7 +67,7 @@
 
             $config->merge($otherConfig);
 
-            $this->assertEquals(['test', 'dev'], $config->debug->environments->toArray());
+            $this->assertEquals(['test', 'dev'], $config->debug->environments);
 
 
         }
@@ -114,7 +114,7 @@
             $config->merge($otherConfig);
 
 
-            $this->assertEquals(['first', 'second'], $config->app->tokens->toArray());
+            $this->assertEquals(['first', 'second'], $config->app->tokens);
             $this->assertEquals('test', $config->app->other->subsection);
         }
 
