@@ -90,14 +90,15 @@
                 return $parent->set($directive, $value);
             }
 
+            $matcher = $this->getMatcher();
             foreach($this->value as $key => $val)
             {
-                if ($this->getMatcher()->match($directive . '.*', $key))
+                if ($matcher->match($directive . '.*', $key))
                 {
                     throw new Exception(sprintf('Setting directive "%s" is forbidden because it collides with section "%s". Consider appending ".[directive-name]" to your directive key.', $directive, $key), Exception::FORBIDDEN_DIRECTIVE_NAME);
                 }
 
-                if ($this->getMatcher()->match($key . '.*', $directive))
+                if ($matcher->match($key . '.*', $directive))
                 {
                     throw new Exception(sprintf('Setting section "%s" is forbidden because it collides with directive "%s". Consider renaming your section.', $directive, $key), Exception::FORBIDDEN_SECTION_NAME);
                 }
@@ -136,6 +137,7 @@
             }
 
             $data    = Config::cast($data);
+
             // get mergers from merged data
             $data->getMergers()->each(function($merger, $key) {
                 $this->addMerger($key, $merger);
@@ -143,7 +145,7 @@
 
             $mergers = $this->getMergers();
 
-
+            $mergedData = [];
             if (!$mergers->isEmpty())
             {
                 // prepare data by manually merging some keys
@@ -152,13 +154,25 @@
                     if (isset($data[$key]) && isset($this[$key]))
                     {
                         $data[$key] = $merger->merge($this[$key], $data[$key]);
+                        $mergedData[] = $key;
                     }
                 }
             }
 
-            $data->each(function($value, $key) {
+            $data->each(function($value, $key)
+            {
+                    // default merging strategy is native
+
+                if(!isset($mergedData[$key]) && $this->has($key))
+                {
+                    $valueToMerge = Collection::cast($value)->toArray();
+                    $currentValue = Collection::cast($this->get($key))->toArray();
+                    $value = array_merge_recursive($currentValue, $value);
+                }
+
                 $this->set($key, $value);
             });
+
 
             return $this;
         }
