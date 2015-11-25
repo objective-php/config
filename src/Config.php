@@ -7,7 +7,6 @@
     use ObjectivePHP\Primitives\Collection\Collection;
     use ObjectivePHP\Primitives\Merger\MergerInterface;
     use ObjectivePHP\Primitives\Merger\ValueMerger;
-    use ObjectivePHP\Primitives\String\String;
 
     /**
      * Class Config
