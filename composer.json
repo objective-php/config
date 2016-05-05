@@ -16,13 +16,13 @@
     }
   ],
   "require": {
-    "php": ">=5.6.0",
-    "objective-php/primitives": "dev-master",
-    "objective-php/matcher": "dev-master"
+    "php": ">=7.0.0",
+    "objective-php/primitives": "1.*",
+    "objective-php/matcher": "1.*"
   },
   "require-dev": {
     "objective-php/phpunit-extension": "1.0",
-    "phpunit/phpunit": "4.*"
+    "phpunit/phpunit": "5.*"
   },
   "autoload": {
     "psr-4": {

@@ -4,18 +4,25 @@
 
     use ObjectivePHP\Config\Config;
     use ObjectivePHP\Config\Exception;
+    use ObjectivePHP\Primitives\Collection\Collection;
 
     class DirectoryLoader implements LoaderInterface
     {
         /**
          * @param $location
          *
-         * @return mixed
+         * @return Config
          */
-        public function load($location)
+        public function load($location) : Config
         {
             $config = new Config();
 
+            return $this->loadInto($config, $location);
+
+        }
+
+        public function loadInto(Config $config, $location) : Config
+        {
             // prepare data for further treatment
             $location = realpath($location);
 
@@ -35,7 +42,10 @@
                 $importedConfig = $this->import($entry, $config);
                 if($importedConfig)
                 {
-                    $config->merge($importedConfig);
+                    foreach($importedConfig as $directive)
+                    {
+                        $config->import($directive);
+                    }
                 }
             }
 
@@ -46,9 +56,10 @@
          * @param $file
          * @param $config Config Make $config available in imported config file to manipulate it directly
          *
-         * @return mixed
+         * @return array
+         * @throws Exception
          */
-        protected function import($file, $config)
+        protected function import($file, $config) : array
         {
             $originalConfig = spl_object_hash($config);
 
@@ -58,11 +69,6 @@
             if(spl_object_hash($config) != $originalConfig)
             {
                 throw new Exception(sprintf('$config has been overwritten while importing "%s" ; please do not assign a value to $config in your config files', $file));
-            }
-
-            if($importedConfig && !$importedConfig instanceof Config)
-            {
-                $importedConfig = Config::factory($importedConfig);
             }
 
             return $importedConfig;
