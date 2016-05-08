@@ -39,7 +39,7 @@
                 TestSingleValueDirectiveGroup::class . '.version' => '1.0',
                 TestSingleValueDirectiveGroup::class . '.env'     => 'dev',
                 TestStackedValuesDirective::class => ['packageX', 'packageY'],
-                TestSingleValueDirective::class => 'value'
+                TestSingleValueDirective::class => 'local value'
             ];
 
         }

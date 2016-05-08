@@ -33,10 +33,19 @@
 
             $directory = new \RecursiveDirectoryIterator($location);
 
+            $localEntries = [];
+
             /** @var $entry \SplFileInfo */
             foreach (new \RecursiveIteratorIterator($directory) as $entry)
             {
                 if ($entry->getExtension() != 'php') continue;
+
+                // handle local entries later on
+                if(strpos($entry, '.local.php'))
+                {
+                    $localEntries[] = $entry;
+                    continue;
+                }
 
                 // get config data
                 $importedConfig = $this->import($entry, $config);
@@ -49,6 +58,21 @@
                 }
             }
 
+
+            // handle local entries,  that should overwrite global ones
+            foreach($localEntries as $entry)
+            {
+                // get config data
+                $importedConfig = $this->import($entry, $config);
+                if($importedConfig)
+                {
+                    foreach($importedConfig as $directive)
+                    {
+                        $config->import($directive);
+                    }
+                }
+            }
+            
             return $config;
         }
 
