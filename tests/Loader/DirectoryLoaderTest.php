@@ -37,7 +37,7 @@
 
             return [
                 TestSingleValueDirectiveGroup::class . '.version' => '1.0',
-                TestSingleValueDirectiveGroup::class . '.env'     => 'dev',
+                TestSingleValueDirectiveGroup::class . '.env'     => 'test',
                 TestStackedValuesDirective::class => ['packageX', 'packageY'],
                 TestSingleValueDirective::class => 'local value'
             ];

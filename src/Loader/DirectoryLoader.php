@@ -31,7 +31,7 @@
                 throw new Exception(sprintf('The config directory "%s" does not exist', $location), Exception::INVALID_LOCATION);
             }
 
-            $directory = new \RecursiveDirectoryIterator($location);
+            $directory = new \RecursiveDirectoryIterator($location, \RecursiveDirectoryIterator::FOLLOW_SYMLINKS);
 
             $localEntries = [];
 
