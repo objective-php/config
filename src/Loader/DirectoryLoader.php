@@ -87,7 +87,12 @@
         {
             $originalConfig = spl_object_hash($config);
 
-            $importedConfig = (($importedConfig = include $file) !== 1) ? $importedConfig : null;
+
+            $fileLoader = function ($path) {
+                return (($importedConfig = include $path) !== 1) ? $importedConfig : null;
+            };
+
+            $importedConfig = $fileLoader($file);
 
             // prevent current config overwriting
             if(spl_object_hash($config) != $originalConfig)
