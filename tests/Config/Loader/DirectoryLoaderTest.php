@@ -5,10 +5,11 @@
 
     use ObjectivePHP\Config\Exception;
     use ObjectivePHP\Config\Loader\DirectoryLoader;
-    use ObjectivePHP\Config\SingleValueDirectiveGroup;
-    use ObjectivePHP\Config\SingleValueDirective;
-    use ObjectivePHP\Config\StackedValuesDirective;
     use ObjectivePHP\PHPUnit\TestCase;
+    use Test\ObjectivePHP\Config\TestStackedValuesDirective;
+    use TestDirectives\TestDirective;
+    use Tests\Helper\TestDirectives\TestSingleValueDirective;
+    use Tests\Helper\TestDirectives\TestSingleValueDirectiveGroup;
 
     class DirectoryLoaderTest extends TestCase
     {
@@ -44,16 +45,13 @@
 
         }
 
+        public function testLoadingConfigFilesReferencingNonExistentDirectives()
+        {
+    
+            $configLoader = new DirectoryLoader();
+            $config = $configLoader->load(__DIR__ . '/unknown');
+            $this->assertEquals('test', $config->get(TestDirective::class));
+        }
     }
+    
 
-    class TestSingleValueDirective extends SingleValueDirective
-    {
-    }
-
-    class TestStackedValuesDirective extends StackedValuesDirective
-    {
-    }
-
-    class TestSingleValueDirectiveGroup extends SingleValueDirectiveGroup
-    {
-    }

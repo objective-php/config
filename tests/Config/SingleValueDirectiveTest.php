@@ -6,6 +6,8 @@
     use ObjectivePHP\Config\SingleValueDirective;
     use ObjectivePHP\PHPUnit\TestCase;
     use ObjectivePHP\Primitives\Merger\MergePolicy;
+    use Tests\Helper\TestDirectives\TestOtherSingleValueDirective;
+    use Tests\Helper\TestDirectives\TestSingleValueDirective;
 
     class SingleValueDirectiveTest extends TestCase
     {
@@ -60,13 +62,4 @@
     }
 
 
-    class TestSingleValueDirective extends SingleValueDirective
-    {
-        const DIRECTIVE = 'test.directive';
-    }
-
-    class TestOtherSingleValueDirective extends SingleValueDirective
-    {
-        const DIRECTIVE = 'other.directive';
-    }
-
+    

@@ -3,9 +3,9 @@
     namespace Test\ObjectivePHP\Config;
 
     use ObjectivePHP\Config\Config;
-    use ObjectivePHP\Config\SingleValueDirectiveGroup;
     use ObjectivePHP\PHPUnit\TestCase;
     use ObjectivePHP\Primitives\Merger\MergePolicy;
+    use Tests\Helper\TestDirectives\TestSingleValueDirectiveGroup;
 
     class SingleValueDirectiveGroupTest extends TestCase
     {
@@ -73,9 +73,4 @@
 
     }
 
-
-    class TestSingleValueDirectiveGroup extends SingleValueDirectiveGroup
-    {
-
-    }
 
