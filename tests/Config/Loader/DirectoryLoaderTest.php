@@ -23,6 +23,14 @@
                 $loader->load($location = uniqid(uniqid()));
             }, Exception::class, $location, Exception::INVALID_LOCATION);
         }
+        
+        public function testLoadingExtraConfigFromNonExistingLocationDoesNotFailWithAnException()
+        {
+                $loader = new DirectoryLoader();
+                $config = $loader->loadExtra($location = uniqid(uniqid()));
+                
+                $this->assertEmpty($config->toArray());
+        }
 
         public function testConfigTreeLoading()
         {

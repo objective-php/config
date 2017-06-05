@@ -9,6 +9,8 @@ use ObjectivePHP\Config\StackedValuesDirective;
 class DirectoryLoader implements LoaderInterface
 {
     /**
+     * Load config files from a given directory
+     *
      * @param $location
      *
      * @return Config
@@ -18,6 +20,21 @@ class DirectoryLoader implements LoaderInterface
         $config = new Config();
         
         return $this->loadInto($config, $location);
+        
+    }
+    
+    /**
+     * Load extra (optional) config files from a given directory
+     *
+     * @param $location
+     *
+     * @return Config
+     */
+    public function loadExtra($location): Config
+    {
+        $config = new Config();
+        
+        return is_dir($location) ? $this->loadInto($config, $location) : $config;
         
     }
     
