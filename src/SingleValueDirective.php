@@ -10,10 +10,14 @@
     namespace ObjectivePHP\Config;
     
     
+    use ObjectivePHP\Primitives\Merger\MergePolicy;
     use ObjectivePHP\Primitives\Merger\ValueMerger;
 
     abstract class SingleValueDirective extends AbstractDirective
     {
+
+        protected $mergePolicy = MergePolicy::REPLACE;
+
         /**
          * SingleValueDirective constructor.
          *

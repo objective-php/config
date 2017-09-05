@@ -8,7 +8,7 @@
     use ObjectivePHP\PHPUnit\TestCase;
     use Test\ObjectivePHP\Config\TestStackedValuesDirective;
     use TestDirectives\TestDirective;
-    use Tests\Helper\TestDirectives\TestSingleValueDirective;
+    use Tests\Helper\TestDirectives\SampleSingleValueDirective;
     use Tests\Helper\TestDirectives\TestSingleValueDirectiveGroup;
 
     class DirectoryLoaderTest extends TestCase
@@ -46,9 +46,9 @@
 
             return [
                 TestSingleValueDirectiveGroup::class . '.version' => '1.0',
-                TestSingleValueDirectiveGroup::class . '.env'     => 'test',
+                TestSingleValueDirectiveGroup::class . '.env'     => 'local',
                 TestStackedValuesDirective::class => ['packageX', 'packageY'],
-                TestSingleValueDirective::class => 'local value'
+                SampleSingleValueDirective::class => 'local value'
             ];
 
         }

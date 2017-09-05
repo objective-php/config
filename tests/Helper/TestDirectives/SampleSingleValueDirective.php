@@ -4,7 +4,7 @@ namespace Tests\Helper\TestDirectives;
 
 use ObjectivePHP\Config\SingleValueDirective;
 
-class TestSingleValueDirective extends SingleValueDirective
+class SampleSingleValueDirective extends SingleValueDirective
 {
 }
 

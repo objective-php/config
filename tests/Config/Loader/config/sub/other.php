@@ -1,10 +1,10 @@
 <?php
 
 
-use Tests\Helper\TestDirectives\TestSingleValueDirective;
+use Tests\Helper\TestDirectives\SampleSingleValueDirective;
 
 $config = 'test';
 
     return [
-        new TestSingleValueDirective('value')
+        new SampleSingleValueDirective('value')
     ];

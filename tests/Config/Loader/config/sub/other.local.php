@@ -1,8 +1,8 @@
 <?php
 
 
-use Tests\Helper\TestDirectives\TestSingleValueDirective;
+use Tests\Helper\TestDirectives\SampleSingleValueDirective;
 
 return [
-    new TestSingleValueDirective('local value')
+    new SampleSingleValueDirective('local value')
 ];
