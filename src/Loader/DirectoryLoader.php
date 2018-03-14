@@ -2,9 +2,9 @@
 
 namespace ObjectivePHP\Config\Loader;
 
-use ObjectivePHP\Config\Config;
-use ObjectivePHP\Config\Exception;
-use ObjectivePHP\Config\StackedValuesDirective;
+use ObjectivePHP\Config\Exception\Config;
+use ObjectivePHP\Config\Exception\Exception;
+use ObjectivePHP\Config\Exception\StackedValuesDirective;
 
 class DirectoryLoader implements LoaderInterface
 {

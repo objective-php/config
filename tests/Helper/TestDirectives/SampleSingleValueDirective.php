@@ -2,7 +2,7 @@
 
 namespace Tests\Helper\TestDirectives;
 
-use ObjectivePHP\Config\SingleValueDirective;
+use ObjectivePHP\Config\Exception\SingleValueDirective;
 
 class SampleSingleValueDirective extends SingleValueDirective
 {

@@ -9,9 +9,8 @@
 namespace Tests\ObjectivePHP\Config;
 
 
-use ObjectivePHP\Config\Config;
-use ObjectivePHP\Config\SingleDirective;
-use ObjectivePHP\Config\StackedDirective;
+use ObjectivePHP\Config\Exception\Config;
+use ObjectivePHP\Config\Exception\StackedDirective;
 use ObjectivePHP\PHPUnit\TestCase;
 
 class StackedDirectiveTest extends TestCase

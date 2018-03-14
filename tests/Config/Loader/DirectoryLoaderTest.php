@@ -3,8 +3,8 @@
     namespace Test\ObjectivePHP\Config\Loader;
 
 
-    use ObjectivePHP\Config\Exception;
-    use ObjectivePHP\Config\Loader\DirectoryLoader;
+    use ObjectivePHP\Config\Exception\Exception;
+    use ObjectivePHP\Config\Exception\Loader\DirectoryLoader;
     use ObjectivePHP\PHPUnit\TestCase;
     use Test\ObjectivePHP\Config\TestStackedValuesDirective;
     use TestDirectives\TestDirective;

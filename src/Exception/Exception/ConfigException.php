@@ -6,15 +6,11 @@
      * Time: 12:19
      */
     
-    namespace ObjectivePHP\Config;
+    namespace ObjectivePHP\Config\Exception;
     
     
-    class Exception extends \Exception
+    class ConfigException extends \Exception
     {
-        // common
         const FORBIDDEN_DIRECTIVE_NAME = 0x10;
         const FORBIDDEN_SECTION_NAME = 0x11;
-
-        // loader related
-        const INVALID_LOCATION = 0x20;
     }

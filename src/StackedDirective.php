@@ -15,7 +15,7 @@ class StackedDirective extends AbstractDirective
 
     protected $identifier;
 
-    protected $aliases = [];
+    protected $identifiers = [];
 
     /**
      * @param ConfigInterface $config
@@ -33,7 +33,7 @@ class StackedDirective extends AbstractDirective
         $stack[] = $this;
         $config->set($this->identifier, $stack);
 
-        foreach($this->aliases as $alias)
+        foreach($this->identifiers as $alias)
         {
             $stack = $config->get($alias, []);
             $stack[] = $this;
@@ -82,33 +82,33 @@ class StackedDirective extends AbstractDirective
     /**
      * @return array
      */
-    public function getAliases(): array
+    public function getIdentifiers(): array
     {
-        return $this->aliases;
+        return $this->identifiers;
     }
 
     /**
-     * @param array $aliases
+     * @param array $identifiers
      */
-    public function setAliases(...$aliases)
+    public function setIdentifiers(...$identifiers)
     {
-        $this->aliases = $aliases;
+        $this->identifiers = $identifiers;
 
         return $this;
     }
 
     public function addAlias(string $alias)
     {
-        $this->aliases[] = $alias;
-        $this->aliases = array_unique($this->aliases);
+        $this->identifiers[] = $alias;
+        $this->identifiers   = array_unique($this->identifiers);
 
         return $this;
     }
 
     public function removeAlias($alias)
     {
-        if($key = array_search($alias, $this->aliases)) {
-            unset($this->aliases[$key]);
+        if($key = array_search($alias, $this->identifiers)) {
+            unset($this->identifiers[$key]);
         }
 
         return $this;

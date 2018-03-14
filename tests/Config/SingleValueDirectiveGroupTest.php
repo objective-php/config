@@ -2,7 +2,7 @@
     
     namespace Test\ObjectivePHP\Config;
 
-    use ObjectivePHP\Config\Config;
+    use ObjectivePHP\Config\Exception\Config;
     use ObjectivePHP\PHPUnit\TestCase;
     use ObjectivePHP\Primitives\Merger\MergePolicy;
     use Tests\Helper\TestDirectives\TestSingleValueDirectiveGroup;

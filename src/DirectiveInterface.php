@@ -20,8 +20,20 @@
         /**
          * @param ConfigInterface $config
          *
-         * @return DirectiveInterface
+         * @return mixed
          */
-        public function mergeInto(ConfigInterface $config) : DirectiveInterface;
-
+        public function getValue();
+    
+        /**
+         * @param $value
+         *
+         * @return bool
+         */
+        public function setValue($value) : bool;
+    
+        /**
+         * @return array
+         */
+        public function getIdentifiers(): array;
+    
     }

@@ -3,7 +3,7 @@
 
 namespace TestDirectives {
     
-    use ObjectivePHP\Config\SingleValueDirective;
+    use ObjectivePHP\Config\Exception\SingleValueDirective;
     
     class TestDirective extends SingleValueDirective
     {

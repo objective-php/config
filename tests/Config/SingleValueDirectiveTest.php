@@ -2,12 +2,11 @@
     
     namespace Test\ObjectivePHP\Config;
 
-    use ObjectivePHP\Config\Config;
-    use ObjectivePHP\Config\SingleValueDirective;
+    use ObjectivePHP\Config\Exception\Config;
     use ObjectivePHP\PHPUnit\TestCase;
     use ObjectivePHP\Primitives\Merger\MergePolicy;
-    use Tests\Helper\TestDirectives\TestOtherSingleValueDirective;
     use Tests\Helper\TestDirectives\SampleSingleValueDirective;
+    use Tests\Helper\TestDirectives\TestOtherSingleValueDirective;
 
     class SingleValueDirectiveTest extends TestCase
     {

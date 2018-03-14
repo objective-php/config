@@ -2,8 +2,8 @@
     
     namespace Test\ObjectivePHP\Config;
 
-    use ObjectivePHP\Config\Config;
-    use ObjectivePHP\Config\StackedValuesDirective;
+    use ObjectivePHP\Config\Exception\Config;
+    use ObjectivePHP\Config\Exception\StackedValuesDirective;
     use ObjectivePHP\PHPUnit\TestCase;
     use ObjectivePHP\Primitives\Merger\MergePolicy;
 
