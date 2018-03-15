@@ -6,11 +6,11 @@
  * Time: 16:52
  */
 
-namespace Tests\ObjectivePHP\Config;
+namespace Tests\ObjectivePHP\Config\Directive;
 
 
-use ObjectivePHP\Config\Exception\Config;
-use ObjectivePHP\Config\Exception\StackedDirective;
+use ObjectivePHP\Config\Config;
+use ObjectivePHP\Config\Directive\StackedDirective;
 use ObjectivePHP\PHPUnit\TestCase;
 
 class StackedDirectiveTest extends TestCase
@@ -22,9 +22,9 @@ class StackedDirectiveTest extends TestCase
 
         $directive = new SampleStackedDirective('x', 'y');
 
-        $config->import($directive);
+        $config->registerDirective($directive);
 
-        $this->assertSame($directive, $config->get(SampleStackedDirective::class)[0]);
+        $this->assertSame($directive, $config->get('sample.directive')[0]);
     }
 
 }
@@ -35,6 +35,8 @@ class SampleStackedDirective extends StackedDirective
     protected $x;
 
     protected $y;
+
+    protected $key = 'sample.directive';
 
     public function __construct($x, $y)
     {

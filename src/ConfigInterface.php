@@ -10,13 +10,14 @@
 namespace ObjectivePHP\Config;
 
 
+use ObjectivePHP\Config\Directive\DirectiveInterface;
 use ObjectivePHP\Primitives\Merger\MergerInterface;
 
 interface ConfigInterface
 {
     public function get($key, $default = null);
-    
+
     public function merge(Config $config, MergerInterface $merger = null);
-    
+
     public function registerDirective(DirectiveInterface ...$directives);
 }

@@ -1,7 +1,8 @@
 <?php
+
 namespace Test\ObjectivePHP\Config;
 
-use ObjectivePHP\Config\Exception\ConfigReference;
+use ObjectivePHP\Config\ConfigReference;
 use ObjectivePHP\PHPUnit\TestCase;
 
 class ConfigReferenceTest extends TestCase

@@ -6,11 +6,11 @@
  * Time: 16:52
  */
 
-namespace Tests\ObjectivePHP\Config;
+namespace Tests\ObjectivePHP\Config\Directive;
 
 
 use ObjectivePHP\Config\Config;
-use ObjectivePHP\Config\SingleDirective;
+use ObjectivePHP\Config\Directive\SingleDirective;
 use ObjectivePHP\PHPUnit\TestCase;
 
 class SingleDirectiveTest extends TestCase
@@ -22,9 +22,9 @@ class SingleDirectiveTest extends TestCase
 
         $directive = new SampleSingleDirective('x', 'y');
 
-        $config->import($directive);
+        $config->registerDirective($directive);
 
-        $this->assertSame($directive, $config->get(SampleSingleDirective::class));
+        $this->assertSame($directive, $config->get('sample.directive'));
     }
 
 }
@@ -35,6 +35,8 @@ class SampleSingleDirective extends SingleDirective
     protected $x;
 
     protected $y;
+
+    protected $key = 'sample.directive';
 
     public function __construct($x, $y)
     {

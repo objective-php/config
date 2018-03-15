@@ -2,9 +2,9 @@
 
 namespace Tests\Helper\TestDirectives;
 
-use ObjectivePHP\Config\Exception\SingleValueDirective;
+use ObjectivePHP\Config\Directive\SingleDirective;
 
-class TestOtherSingleValueDirective extends SingleValueDirective
+class TestOtherSingleValueDirective extends SingleDirective
 {
 }
 

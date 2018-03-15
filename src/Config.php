@@ -3,6 +3,8 @@
 namespace ObjectivePHP\Config;
 
 
+use ObjectivePHP\Config\Directive\DirectiveInterface;
+use ObjectivePHP\Config\Directive\MultipleValuesDirective;
 use ObjectivePHP\Matcher\Matcher;
 use ObjectivePHP\Primitives\Merger\MergerInterface;
 
@@ -13,18 +15,18 @@ use ObjectivePHP\Primitives\Merger\MergerInterface;
  */
 class Config implements ConfigInterface
 {
-    
-    
+
+
     /**
      * @var Matcher
      */
     protected $matcher;
-    
+
     /**
      * @var array Default internal value
      */
     protected $directives = [];
-    
+
     /**
      * Config constructor.
      *
@@ -34,8 +36,27 @@ class Config implements ConfigInterface
     {
         $this->registerDirective(...$directives);
     }
-    
-    
+
+    public function registerDirective(DirectiveInterface ...$directives)
+    {
+        foreach ($directives as $directive) {
+
+            if ($directive instanceof MultipleValuesDirective) {
+                $id = $directive->getId();
+
+                if (is_null($id)) {
+                    $this->directives[$directive->getKey()][] = $directive;
+                } else {
+                    $this->directives[$directive->getKey()][$id] = $directive;
+                }
+            } else {
+                $this->directives[$directive->getKey()] = $directive;
+            }
+        }
+
+        return $this;
+    }
+
     /**
      * Simpler getter
      *
@@ -48,8 +69,7 @@ class Config implements ConfigInterface
     {
         return $this->directives[$key] ?? $default;
     }
-    
-    
+
     /**
      * Extract a configuration subset
      *
@@ -63,17 +83,17 @@ class Config implements ConfigInterface
     public function subset($filter)
     {
         $filterLength = strlen($filter) + 1; // + 1 for the '.' following the prefix
-        
+
         $subset = new Config();
         foreach ($this as $key => $value) {
             if ($this->getMatcher()->match($filter, $key)) {
                 $subset->set(substr($key, $filterLength), $value);
             }
         }
-        
+
         return $subset;
     }
-    
+
     /**
      * @return Matcher
      */
@@ -82,10 +102,10 @@ class Config implements ConfigInterface
         if (is_null($this->matcher)) {
             $this->matcher = new Matcher();
         }
-        
+
         return $this->matcher;
     }
-    
+
     /**
      * @param Matcher $matcher
      *
@@ -94,27 +114,38 @@ class Config implements ConfigInterface
     public function setMatcher(Matcher $matcher)
     {
         $this->matcher = $matcher;
-        
+
         return $this;
     }
-    
-    
-    public function registerDirective(DirectiveInterface ...$directives)
+
+    /**
+     * @param $key
+     * @param $value
+     * @return Config
+     */
+    public function set($key, $value)
     {
-        foreach ($directives as $directive) {
-            $identifiers = $directive->getIdentifiers();
-            foreach ($identifiers as $identifier) {
-                $this->directives[$identifier] = $directive;
-            }
-        }
-        
+
+
         return $this;
     }
-    
+
     public function merge(Config $config, MergerInterface $merger = null)
     {
         // TODO: Implement merge() method.
     }
-    
-    
+
+    public function toArray()
+    {
+        $export = [];
+
+        foreach ($this->directives as $directive) {
+            $export[$directive->getKey()] = $directive->getValue();
+        }
+
+        return $export;
+
+    }
+
+
 }

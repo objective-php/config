@@ -6,7 +6,7 @@
  * Time: 16:13
  */
 
-namespace ObjectivePHP\Config;
+namespace ObjectivePHP\Config\Directive;
 
 
 class SingleDirective extends AbstractDirective

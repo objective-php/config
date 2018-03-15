@@ -1,7 +1,7 @@
 <?php
 
-use Tests\Helper\TestDirectives\TestSingleValueDirectiveGroup;
+use Tests\Helper\TestDirectives\SampleSingleValueDirective;
 
 return [
-    new TestSingleValueDirectiveGroup('env', 'local')
+    (new SampleSingleValueDirective('local'))->setKey('env')
 ];

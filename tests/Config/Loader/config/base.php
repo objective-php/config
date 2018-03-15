@@ -1,12 +1,12 @@
 <?php
 
 
-use Tests\Helper\TestDirectives\TestSingleValueDirectiveGroup;
+use Tests\Helper\TestDirectives\SampleSingleValueDirective;
 
 return [
-        new TestSingleValueDirectiveGroup('version', '1.0'),
-        new TestSingleValueDirectiveGroup('env', 'dev'),
-    ];
+    new SampleSingleValueDirective('version', '1.0'),
+    new SampleSingleValueDirective('env', 'dev'),
+];
 
 
 

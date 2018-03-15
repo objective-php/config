@@ -2,9 +2,11 @@
 
 namespace Tests\Helper\TestDirectives;
 
-use ObjectivePHP\Config\Exception\SingleValueDirective;
 
-class SampleSingleValueDirective extends SingleValueDirective
+use ObjectivePHP\Config\Directive\SingleDirective;
+
+class SampleSingleValueDirective extends SingleDirective
 {
+    protected $key = __CLASS__;
 }
 
