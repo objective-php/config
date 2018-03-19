@@ -9,8 +9,6 @@
 
 namespace ObjectivePHP\Config\Directive;
 
-use ObjectivePHP\Config\ConfigInterface;
-
 /**
  * Interface DirectiveInterface
  *
@@ -20,8 +18,6 @@ interface DirectiveInterface
 {
 
     /**
-     * @param ConfigInterface $config
-     *
      * @return mixed
      */
     public function getValue();
@@ -32,13 +28,6 @@ interface DirectiveInterface
     public function getDefaultValue();
 
     /**
-     * @param $value
-     *
-     * @return bool
-     */
-    public function setValue($value);
-
-    /**
      * @return string
      */
     public function getKey(): string;
@@ -47,5 +36,11 @@ interface DirectiveInterface
      * @return string
      */
     public function getDescription(): string;
+
+    /**
+     * @param $data
+     * @return mixed
+     */
+    public function hydrate($data);
 
 }

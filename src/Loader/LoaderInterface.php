@@ -2,6 +2,8 @@
 
     namespace ObjectivePHP\Config\Loader;
 
+    use ObjectivePHP\Config\ConfigInterface;
+
     interface LoaderInterface
     {
         /**
@@ -9,7 +11,7 @@
          *
          * @param $location
          *
-         * @return mixed
+         * @return ConfigInterface
          */
-        public function load($location);
+        public function load(ConfigInterface $config, $location);
     }

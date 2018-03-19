@@ -5,6 +5,7 @@ namespace ObjectivePHP\Config;
 
 use ObjectivePHP\Config\Directive\DirectiveInterface;
 use ObjectivePHP\Config\Directive\MultipleValuesDirective;
+use ObjectivePHP\Config\Exception\ConfigException;
 use ObjectivePHP\Matcher\Matcher;
 use ObjectivePHP\Primitives\Merger\MergerInterface;
 
@@ -41,33 +42,10 @@ class Config implements ConfigInterface
     {
         foreach ($directives as $directive) {
 
-            if ($directive instanceof MultipleValuesDirective) {
-                $id = $directive->getId();
-
-                if (is_null($id)) {
-                    $this->directives[$directive->getKey()][] = $directive;
-                } else {
-                    $this->directives[$directive->getKey()][$id] = $directive;
-                }
-            } else {
-                $this->directives[$directive->getKey()] = $directive;
-            }
+            $this->directives[$directive->getKey()] = $directive;
         }
 
         return $this;
-    }
-
-    /**
-     * Simpler getter
-     *
-     * @param            $key
-     * @param null|mixed $default
-     *
-     * @return mixed|Config
-     */
-    public function get($key, $default = null)
-    {
-        return $this->directives[$key] ?? $default;
     }
 
     /**
@@ -126,8 +104,39 @@ class Config implements ConfigInterface
     public function set($key, $value)
     {
 
+        // extract actual directive key
+        $parts = explode('.', strtolower($key), 2);
+        $directiveKey = $parts[0];
+        $extraKey = $parts[1] ?? null;
+
+        if (!isset($this->directives[$directiveKey])) {
+            // add free param
+        } else {
+            $directive = $this->get($directiveKey);
+            $directive->setValue($value, $extraKey);
+        }
 
         return $this;
+    }
+
+    /**
+     * Simpler getter
+     *
+     * @param            $key
+     * @param null|mixed $default
+     *
+     * @return mixed|Config
+     */
+    public function get($key)
+    {
+        // TODO handle missing directives
+        $directive = $this->directives[$key] ?? null;
+
+        if (is_null($directive)) {
+            throw new ConfigException(sprintf('No configuration directive has been registered for key "%s"', $key));
+        }
+
+        return $directive->getValue();
     }
 
     public function merge(Config $config, MergerInterface $merger = null)
@@ -138,13 +147,15 @@ class Config implements ConfigInterface
     public function toArray()
     {
         $export = [];
-
         foreach ($this->directives as $directive) {
+            if (is_array($directive)) {
+                var_dump($directive);
+                exit;
+            }
             $export[$directive->getKey()] = $directive->getValue();
         }
 
         return $export;
-
     }
 
 

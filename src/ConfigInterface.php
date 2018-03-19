@@ -15,7 +15,9 @@ use ObjectivePHP\Primitives\Merger\MergerInterface;
 
 interface ConfigInterface
 {
-    public function get($key, $default = null);
+    public function get($key);
+
+    public function set($key, $value);
 
     public function merge(Config $config, MergerInterface $merger = null);
 

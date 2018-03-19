@@ -9,6 +9,8 @@
 
 namespace ObjectivePHP\Config\Directive;
 
+use ObjectivePHP\Config\Exception\ConfigLoadingException;
+
 
 /**
  * Class AbstractDirective
@@ -17,7 +19,7 @@ namespace ObjectivePHP\Config\Directive;
  *
  * @package ObjectivePHP\Config
  */
-abstract class AbstractDirective implements DirectiveInterface
+abstract class AbstractScalarDirective implements DirectiveInterface
 {
 
     /**
@@ -41,11 +43,6 @@ abstract class AbstractDirective implements DirectiveInterface
     protected $description;
 
     /**
-     * @var bool
-     */
-    protected $isHydrated = false;
-
-    /**
      * AbstractDirective constructor.
      *
      * @param mixed $defaultValue
@@ -62,16 +59,19 @@ abstract class AbstractDirective implements DirectiveInterface
      */
     public function getValue()
     {
-        return $this->defaultValue ?: $this;
+        return $this->value ?? $this->defaultValue;
     }
 
     /**
      * @param $value
      *
-     * @return $this
+     * @return AbstractScalarDirective
      */
     public function hydrate($data)
     {
+        if (!is_scalar($data)) {
+            throw new ConfigLoadingException(sprintf('Config directive "%s" expects a scalar value. Trying to set "%s" value.', get_class($this), gettype($data)));
+        }
         $this->value = $data;
 
         return $this;
@@ -123,15 +123,9 @@ abstract class AbstractDirective implements DirectiveInterface
      */
     public function setDefaultValue($defaultValue)
     {
-
         $this->defaultValue = $defaultValue;
 
         return $this;
-    }
-
-    protected function isHydrated(): bool
-    {
-        return $this->isHydrated;
     }
 
 

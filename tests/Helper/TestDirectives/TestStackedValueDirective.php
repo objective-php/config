@@ -3,9 +3,9 @@
 namespace Tests\Helper\TestDirectives;
 
 
-use ObjectivePHP\Config\Directive\StackedDirective;
+use ObjectivePHP\Config\Directive\StackedScalarDirective;
 
-class TestStackedValueDirective extends StackedDirective
+class TestStackedValueDirective extends StackedScalarDirective
 {
     protected $key = __CLASS__;
 }
