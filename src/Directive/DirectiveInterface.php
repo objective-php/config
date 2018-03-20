@@ -17,15 +17,6 @@ namespace ObjectivePHP\Config\Directive;
 interface DirectiveInterface
 {
 
-    /**
-     * @return mixed
-     */
-    public function getValue();
-
-    /**
-     * @return mixed
-     */
-    public function getDefaultValue();
 
     /**
      * @return string
@@ -36,9 +27,10 @@ interface DirectiveInterface
      * @return string
      */
     public function getDescription(): string;
-
+    
     /**
      * @param $data
+     *
      * @return mixed
      */
     public function hydrate($data);

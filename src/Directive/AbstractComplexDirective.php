@@ -20,22 +20,23 @@ use ObjectivePHP\Primitives\String\Camel;
  *
  * @package ObjectivePHP\Config
  */
-abstract class AbstractComplexDirective extends AbstractDirective
+abstract class AbstractComplexDirective extends AbstractDirective implements ComplexDirectiveInterface
 {
-
+    
+    
     /**
-     * @return mixed
+     * AbstractDirective constructor.
+     *
+     * @param mixed $defaultValue
      */
-    public function getValue()
+    public function __construct($key = null)
     {
-        return $this->isHydrated() ? $this : $this->getDefaultValue();
+        if ($key) {
+            $this->setKey($key);
+        }
     }
-
-    public function getDefaultValue()
-    {
-        return $this->defaultValue ? parent::getDefaultValue() : $this;
-    }
-
+    
+    
     /**
      * @param $value
      *
@@ -43,31 +44,20 @@ abstract class AbstractComplexDirective extends AbstractDirective
      */
     public function hydrate($data)
     {
+        if (!is_array($data)) {
+            throw new ConfigLoadingException(sprintf('Hydration of "%s" requires data array. Scalar value passed.', get_class($this)), ConfigLoadingException::INVALID_VALUE);
+        }
         foreach ($data as $attribute => $value) {
             $setter = 'set' . Camel::case($attribute, Camel::UPPER);
-
+            
             if (method_exists($this, $setter)) {
                 $this->$setter($value);
             } else {
                 throw new ConfigLoadingException(sprintf('No setter method for attribute "%s"', $attribute));
             }
         }
-
+        
         return $this;
     }
-
-    /**
-     * @param mixed $defaultValue
-     */
-    public function setDefaultValue($defaultValue)
-    {
-        if (!$defaultValue instanceof static) {
-            throw new ConfigLoadingException('Default value for complexw directives must be an instance of the directive itself.');
-        }
-
-        $this->defaultValue = $defaultValue;
-
-        return $this;
-    }
-
+    
 }

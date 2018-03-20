@@ -9,7 +9,7 @@
 namespace ObjectivePHP\Config\Directive;
 
 
-interface CollectionDirectiveInterface extends DirectiveInterface
+interface MultiValueDirectiveInterface extends DirectiveInterface
 {
 
 }

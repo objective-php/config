@@ -17,18 +17,8 @@ namespace ObjectivePHP\Config\Directive;
  *
  * @package ObjectivePHP\Config
  */
-abstract class AbstractDirective implements DirectiveInterface
+abstract class AbstractDirective
 {
-
-    /**
-     * @var mixed Directive value
-     */
-    protected $value;
-
-    /**
-     * @var mixed
-     */
-    protected $defaultValue;
 
     /**
      * @var string Unique directive identifier in the Config object
@@ -40,42 +30,6 @@ abstract class AbstractDirective implements DirectiveInterface
      */
     protected $description;
 
-    /**
-     * @var bool
-     */
-    protected $isHydrated = false;
-
-    /**
-     * AbstractDirective constructor.
-     *
-     * @param mixed $defaultValue
-     */
-    public function __construct($defaultValue = null, $key = null)
-    {
-        $this->setDefaultValue($defaultValue);
-        if (!is_null($key)) $this->setKey($key);
-    }
-
-
-    /**
-     * @return mixed
-     */
-    public function getValue()
-    {
-        return $this->defaultValue ?: $this;
-    }
-
-    /**
-     * @param $value
-     *
-     * @return $this
-     */
-    public function hydrate($data)
-    {
-        $this->value = $data;
-
-        return $this;
-    }
 
     public function getKey(): string
     {
@@ -109,30 +63,4 @@ abstract class AbstractDirective implements DirectiveInterface
 
         return $this;
     }
-
-    /**
-     * @return mixed
-     */
-    public function getDefaultValue()
-    {
-        return $this->defaultValue;
-    }
-
-    /**
-     * @param mixed $defaultValue
-     */
-    public function setDefaultValue($defaultValue)
-    {
-
-        $this->defaultValue = $defaultValue;
-
-        return $this;
-    }
-
-    protected function isHydrated(): bool
-    {
-        return $this->isHydrated;
-    }
-
-
 }

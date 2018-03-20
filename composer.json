@@ -19,8 +19,7 @@
     "php": ">=7.0.0",
     "objective-php/primitives": "1.*",
     "objective-php/matcher": "1.*",
-    "codeception/codeception": "^2.4",
-    "vlucas/phpdotenv": "^2.4"
+    "codeception/codeception": "^2.4"
   },
   "require-dev": {
     "objective-php/phpunit-extension": "1.0",
