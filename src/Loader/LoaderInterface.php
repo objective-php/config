@@ -1,17 +1,18 @@
 <?php
 
-    namespace ObjectivePHP\Config\Loader;
+namespace ObjectivePHP\Config\Loader;
 
-    use ObjectivePHP\Config\ConfigInterface;
+use ObjectivePHP\Config\ConfigInterface;
 
-    interface LoaderInterface
-    {
-        /**
-         *
-         *
-         * @param $location
-         *
-         * @return ConfigInterface
-         */
-        public function load(ConfigInterface $config, $location);
-    }
+interface LoaderInterface
+{
+    /**
+     *
+     *
+     * @param $location
+     *
+     * @return ConfigInterface
+     */
+    public function load(): array;
+
+}

@@ -22,4 +22,6 @@ interface ConfigInterface
     public function merge(Config $config, MergerInterface $merger = null);
 
     public function registerDirective(DirectiveInterface ...$directives);
+
+    public function hydrate($data);
 }
