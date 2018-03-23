@@ -9,7 +9,7 @@
 
 namespace ObjectivePHP\Config\Directive;
 
-use ObjectivePHP\Config\Exception\ConfigLoadingException;
+use ObjectivePHP\Config\Exception\ParamsProcessingException;
 use ObjectivePHP\Primitives\String\Camel;
 
 
@@ -22,21 +22,8 @@ use ObjectivePHP\Primitives\String\Camel;
  */
 abstract class AbstractComplexDirective extends AbstractDirective implements ComplexDirectiveInterface
 {
-    
-    
-    /**
-     * AbstractDirective constructor.
-     *
-     * @param mixed $defaultValue
-     */
-    public function __construct($key = null)
-    {
-        if ($key) {
-            $this->setKey($key);
-        }
-    }
-    
-    
+
+
     /**
      * @param $value
      *
@@ -45,19 +32,24 @@ abstract class AbstractComplexDirective extends AbstractDirective implements Com
     public function hydrate($data)
     {
         if (!is_array($data)) {
-            throw new ConfigLoadingException(sprintf('Hydration of "%s" requires data array. Scalar value passed.', get_class($this)), ConfigLoadingException::INVALID_VALUE);
+            throw new ParamsProcessingException(sprintf('Hydration of "%s" requires data array. Scalar value passed.', get_class($this)), ParamsProcessingException::INVALID_VALUE);
         }
         foreach ($data as $attribute => $value) {
+
+            if (is_int($attribute)) {
+                throw new ParamsProcessingException(sprintf('Complex directives must be hydrated using associative arrays. Integer key was provided.'), ParamsProcessingException::INVALID_VALUE);
+            }
+
             $setter = 'set' . Camel::case($attribute, Camel::UPPER);
-            
+
             if (method_exists($this, $setter)) {
                 $this->$setter($value);
             } else {
-                throw new ConfigLoadingException(sprintf('No setter method for attribute "%s"', $attribute));
+                throw new ParamsProcessingException(sprintf('No setter method for attribute "%s"', $attribute), ParamsProcessingException::UNKNOWN_ATTRIBUTE);
             }
         }
-        
+
         return $this;
     }
-    
+
 }

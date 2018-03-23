@@ -10,7 +10,7 @@ namespace Tests\ObjectivePHP\Config\Directive;
 
 
 use ObjectivePHP\Config\Config;
-use ObjectivePHP\Config\Exception\ConfigLoadingException;
+use ObjectivePHP\Config\Exception\ParamsProcessingException;
 use ObjectivePHP\PHPUnit\TestCase;
 use Tests\Helper\TestDirectives\ScalarDirective;
 
@@ -31,19 +31,19 @@ class ScalarDirectiveTest extends TestCase
 
     public function testAbstractScalarDirectiveConstructorRejectsNonScalarValues()
     {
-        $this->expectException(ConfigLoadingException::class);
-        $this->expectExceptionCode(ConfigLoadingException::INVALID_VALUE);
-        
+        $this->expectException(ParamsProcessingException::class);
+        $this->expectExceptionCode(ParamsProcessingException::INVALID_VALUE);
+
         new ScalarDirective(['not a scalar value']);
-        
+
     }
-    
+
     public function testScalarDirectiveRejectsNonScalarValues()
     {
-        $this->expectException(ConfigLoadingException::class);
-        $this->expectExceptionCode(ConfigLoadingException::INVALID_VALUE);
-        
+        $this->expectException(ParamsProcessingException::class);
+        $this->expectExceptionCode(ParamsProcessingException::INVALID_VALUE);
+
         (new ScalarDirective())->hydrate(['not a scalar value']);
-        
+
     }
 }

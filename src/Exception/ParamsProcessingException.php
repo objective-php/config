@@ -11,5 +11,6 @@ namespace ObjectivePHP\Config\Exception;
 
 class ParamsProcessingException extends ConfigException
 {
-
+    const INVALID_VALUE = 0x30;
+    const UNKNOWN_ATTRIBUTE = 0x31;
 }

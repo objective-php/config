@@ -15,6 +15,5 @@ class ConfigException extends \Exception
     const FORBIDDEN_SECTION_NAME = 0x11;
 
     const MISSING_DIRECTIVE = 0x20;
-    
-    const INVALID_VALUE = 0x30;
+
 }

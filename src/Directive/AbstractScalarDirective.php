@@ -9,7 +9,7 @@
 
 namespace ObjectivePHP\Config\Directive;
 
-use ObjectivePHP\Config\Exception\ConfigLoadingException;
+use ObjectivePHP\Config\Exception\ParamsProcessingException;
 
 
 /**
@@ -25,13 +25,13 @@ abstract class AbstractScalarDirective extends AbstractDirective implements Scal
      * @var bool|float|int|string
      */
     protected $defaultValue;
-    
+
     /**
      * @var bool|float|int|string Directive value
      */
     protected $value;
-    
-    
+
+
     /**
      * AbstractDirective constructor.
      *
@@ -40,18 +40,18 @@ abstract class AbstractScalarDirective extends AbstractDirective implements Scal
     public function __construct($defaultValue = null, $key = null)
     {
         if (!is_scalar($defaultValue)) {
-            throw new ConfigLoadingException(sprintf('Config directive "%s" expects a scalar value. Trying to set "%s" value.',
-                get_class($this), gettype($defaultValue)), ConfigLoadingException::INVALID_VALUE);
+            throw new ParamsProcessingException(sprintf('Config directive "%s" expects a scalar value. Trying to set "%s" value.',
+                get_class($this), gettype($defaultValue)), ParamsProcessingException::INVALID_VALUE);
         }
-        
+
         $this->defaultValue = $defaultValue;
-        
+
         if (!is_null($key)) {
             $this->setKey($key);
         }
     }
-    
-    
+
+
     /**
      * @return mixed
      */
@@ -59,7 +59,7 @@ abstract class AbstractScalarDirective extends AbstractDirective implements Scal
     {
         return $this->value ?: $this->defaultValue;
     }
-    
+
     /**
      * @param $value
      *
@@ -68,13 +68,13 @@ abstract class AbstractScalarDirective extends AbstractDirective implements Scal
     public function hydrate($data)
     {
         if (!is_scalar($data)) {
-            throw new ConfigLoadingException(sprintf('Config directive "%s" expects a scalar value. Trying to set "%s" value.',
-                get_class($this), gettype($data)), ConfigLoadingException::INVALID_VALUE);
+            throw new ParamsProcessingException(sprintf('Config directive "%s" expects a scalar value. Trying to set "%s" value.',
+                get_class($this), gettype($data)), ParamsProcessingException::INVALID_VALUE);
         }
-        
+
         $this->value = $data;
-        
+
         return $this;
     }
-    
+
 }
