@@ -18,10 +18,14 @@ class JsonParamsProcessor implements ConfigProcessorInterface
         $params = json_decode($data, true);
 
         if (is_null($params)) {
-            throw new ParamsProcessingException('Failed decoding JSON params');
+            throw new ParamsProcessingException(sprintf('Failed decoding JSON params: %s', json_last_error_msg()), ParamsProcessingException::INVALID_VALUE);
         }
 
-        return $params;
+        if (!is_array($params) || isset($params[0])) {
+            throw new ParamsProcessingException('JSON params must be enclosed in an object structure ({"directive-name": "param value"})', ParamsProcessingException::INVALID_VALUE);
+        }
+
+        return (array)$params;
 
     }
 

@@ -4,6 +4,8 @@ namespace ObjectivePHP\Config\Loader;
 
 use ObjectivePHP\Config\ConfigInterface;
 use ObjectivePHP\Config\Exception\ConfigLoadingException;
+use ObjectivePHP\Config\Processor\ConfigProcessorInterface;
+use SplFileInfo;
 
 class FileLoader implements LoaderInterface
 {
@@ -13,36 +15,41 @@ class FileLoader implements LoaderInterface
      */
     protected $locations = [];
 
-    public function load(): array
+    protected $processors = [];
+
+    public function load(...$locations): array
     {
 
-        foreach ($this->locations as $location) {
+        $config = [];
+        $localEntries = [];
+
+        $locations = $this->locations + $locations;
+
+        foreach ($locations as $location) {
 
             // prepare data for further treatment
-            $location = realpath($location);
+            $locationRealPath = realpath($location);
 
-            if (!$location) {
+            if (!$locationRealPath) {
                 throw new ConfigLoadingException(sprintf('The config location "%s" does not exist', $location),
                     ConfigLoadingException::INVALID_LOCATION);
             }
 
-            if (is_dir($location)) {
-                $directory = new \RecursiveDirectoryIterator($location, \RecursiveDirectoryIterator::FOLLOW_SYMLINKS);
+            if (is_dir($locationRealPath)) {
+                $directory = new \RecursiveDirectoryIterator($locationRealPath, \RecursiveDirectoryIterator::FOLLOW_SYMLINKS);
                 $entries = new \RecursiveIteratorIterator($directory);
             } else {
-                $entries = [$location];
+                $entries = [new SplFileInfo($locationRealPath)];
             }
-
-            $localEntries = [];
 
             /** @var $entry \SplFileInfo */
             foreach ($entries as $entry) {
-                if ($entry->getExtension() != 'php') {
+                if (!isset($this->processors[$entry->getExtension()])) {
                     continue;
                 }
 
                 // handle local entries later on
-                if (strpos($entry, '.local.php')) {
+                if (strpos($entry, '.local.')) {
                     $localEntries[] = $entry;
                     continue;
                 }
@@ -50,9 +57,7 @@ class FileLoader implements LoaderInterface
                 // get config data
                 $importedConfig = $this->import($entry);
                 if ($importedConfig) {
-                    foreach ($importedConfig as $directive => $value) {
-                        $config->set($directive, $value);
-                    }
+                    $config = array_merge($config, $importedConfig);
                 }
             }
         }
@@ -62,9 +67,7 @@ class FileLoader implements LoaderInterface
             // get config data
             $importedConfig = $this->import($entry);
             if ($importedConfig) {
-                foreach ($importedConfig as $directive => $value) {
-                    $config->set($directive, $value);
-                }
+                $config = array_merge($config, $importedConfig);
             }
         }
 
@@ -78,15 +81,30 @@ class FileLoader implements LoaderInterface
      * @return array
      * @throws ConfigLoadingException
      */
-    protected function import($file): array
+    protected function import(SplFileInfo $file): array
     {
+        if ($file->getExtension() == '.php') {
+            $data = include $file->getRealPath();
+        } else {
+            $data = file_get_contents($file->getRealPath());
+        }
 
-        $fileLoader = function ($path) {
-            return (($importedConfig = include $path) !== 1) ? $importedConfig : null;
-        };
+        $processor = $this->processors[$file->getExtension()];
 
-        return $fileLoader($file);
+        $processedData = $processor->process($data);
 
+        return $processedData;
+
+    }
+
+    public function registerProcessor(ConfigProcessorInterface $processor, string ...$handledExtensions)
+    {
+        if (!$handledExtensions) {
+            throw new ConfigLoadingException('Param processors must be associated to at least one file extension.');
+        }
+        foreach ($handledExtensions as $extension) {
+            $this->processors[$extension] = $processor;
+        }
     }
 
 }

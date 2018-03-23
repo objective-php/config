@@ -39,7 +39,7 @@ abstract class AbstractScalarDirective extends AbstractDirective implements Scal
      */
     public function __construct($defaultValue = null, $key = null)
     {
-        if (!is_scalar($defaultValue)) {
+        if (!is_null($defaultValue) && !is_scalar($defaultValue)) {
             throw new ParamsProcessingException(sprintf('Config directive "%s" expects a scalar value. Trying to set "%s" value.',
                 get_class($this), gettype($defaultValue)), ParamsProcessingException::INVALID_VALUE);
         }

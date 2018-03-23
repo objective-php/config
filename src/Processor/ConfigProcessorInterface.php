@@ -11,7 +11,5 @@ namespace ObjectivePHP\Config\Processor;
 
 interface ConfigProcessorInterface
 {
-
     public function process($data): array;
-
 }
