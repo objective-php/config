@@ -9,7 +9,7 @@
 namespace ObjectivePHP\Config\Merger;
 
 
-use ObjectivePHP\Config\Exception\ConfigInterface;
+use ObjectivePHP\Config\ConfigInterface;
 use ObjectivePHP\Config\Exception\Exception\ConfigMergingException;
 use ObjectivePHP\Primitives\Merger\MergePolicy;
 use ObjectivePHP\Primitives\Merger\MergerInterface;
@@ -18,7 +18,7 @@ class ConfigMerger implements MergerInterface
 {
     /** @var int */
     protected $policy = MergePolicy::AUTO;
-    
+
     /**
      * @param $policy   mixed
      * @param $keys     mixed
@@ -27,8 +27,8 @@ class ConfigMerger implements MergerInterface
     {
         $this->policy = $policy;
     }
-    
-    
+
+
     /**
      * Merge two values according to the defined policy
      *
@@ -40,13 +40,12 @@ class ConfigMerger implements MergerInterface
      */
     public function merge($first, $second)
     {
-        if(!$first instanceof ConfigInterface || !$second instanceof ConfigInterface) {
+        if (!$first instanceof ConfigInterface || !$second instanceof ConfigInterface) {
             throw new ConfigMergingException('Only "' . ConfigInterface::class . '" instances can be merged using "' . __CLASS__ . '"');
         }
-        
-        
-        
-        
+
+        $first->hydrate($second->toArray());
+
     }
-    
+
 }

@@ -13,15 +13,59 @@ namespace ObjectivePHP\Config;
 use ObjectivePHP\Config\Directive\DirectiveInterface;
 use ObjectivePHP\Primitives\Merger\MergerInterface;
 
+/**
+ * Interface ConfigInterface
+ * @package ObjectivePHP\Config
+ */
 interface ConfigInterface
 {
+    /**
+     * Get a parameter matching the provided key
+     *
+     * This method may return various kind of value:
+     *
+     * - a DirectiveInterface instance for ComplexDirectiveInterface
+     * - a directive value for ScalarDirectiveInterface
+     * - an array of DirectiveInterface instance for ComplexDirectiveInterface + MultiValueDirectiveInterface
+     * - an array of values for ScalarDirectiveInterface + MultiValueDirectiveInterface
+     *
+     * @param $key string
+     * @return mixed
+     */
     public function get($key);
 
-    public function set($key, $value);
+    /**
+     * Set a configuration parameter
+     *
+     * Provided value will be passed to the hydrate() method of the matching directive.
+     *
+     * @param $key string
+     * @param $value mixed
+     * @return ConfigInterface
+     */
+    public function set($key, $value): ConfigInterface;
 
+    /**
+     * @param Config $config
+     * @param MergerInterface|null $merger
+     * @return $this
+     */
     public function merge(Config $config, MergerInterface $merger = null);
 
+    /**
+     * @param DirectiveInterface[] ...$directives
+     * @return mixed
+     */
     public function registerDirective(DirectiveInterface ...$directives);
 
+    /**
+     * @param $data
+     * @return $this
+     */
     public function hydrate($data);
+
+    /**
+     * @return array
+     */
+    public function toArray(): array;
 }

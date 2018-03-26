@@ -9,6 +9,7 @@ use ObjectivePHP\Config\Directive\MultiValueDirectiveInterface;
 use ObjectivePHP\Config\Directive\ScalarDirectiveInterface;
 use ObjectivePHP\Config\Exception\ConfigException;
 use ObjectivePHP\Matcher\Matcher;
+use ObjectivePHP\Primitives\Collection\Collection;
 use ObjectivePHP\Primitives\Merger\MergerInterface;
 
 /**
@@ -45,6 +46,10 @@ class Config implements ConfigInterface
         $this->registerDirective(...$directives);
     }
 
+    /**
+     * @param DirectiveInterface[] ...$directives
+     * @return $this|mixed
+     */
     public function registerDirective(DirectiveInterface ...$directives)
     {
         foreach ($directives as $directive) {
@@ -106,12 +111,9 @@ class Config implements ConfigInterface
     }
 
     /**
-     * @param $key
-     * @param $value
-     *
-     * @return Config
+     * @inheritdoc
      */
-    public function set($key, $value)
+    public function set($key, $value): ConfigInterface
     {
         // extract actual directive key
         if (!isset($this->directives[$key])) {
@@ -130,14 +132,19 @@ class Config implements ConfigInterface
                 foreach ($value as $reference => $data) {
 
                     if (!isset($this->values[$key][$reference])) {
-                        $newInstance = (clone $this->values[$key]['default'])->hydrate($data);
+                        /** @var ComplexDirectiveInterface $newInstance */
+                        $newInstance = clone $this->values[$key]['default'];
+                        $newInstance->hydrate($data);
+
                         if (is_int($reference)) {
                             $this->values[$key][] = $newInstance;
                         } else {
                             $this->values[$key][$reference] = $newInstance;
                         }
                     } else {
-                        $this->values[$key][$reference]->hydrate($data);
+                        /** @var DirectiveInterface $directive */
+                        $directive = $this->values[$key][$reference];
+                        $directive->hydrate($data);
                     }
                 }
 
@@ -148,12 +155,7 @@ class Config implements ConfigInterface
     }
 
     /**
-     * Simpler getter
-     *
-     * @param            $key
-     * @param null|mixed $default
-     *
-     * @return mixed|Config
+     * @inheritdoc
      */
     public function get($key)
     {
@@ -176,6 +178,7 @@ class Config implements ConfigInterface
 
                 $values = $this->values[$directive->getKey()];
 
+                /** @var ScalarDirectiveInterface $value */
                 foreach ($values as &$value) {
                     $value = $value->getValue();
                 }
@@ -183,15 +186,39 @@ class Config implements ConfigInterface
                 return $values;
             }
         }
-
     }
 
+    /**
+     * @inheritdoc
+     */
     public function merge(Config $config, MergerInterface $merger = null)
     {
-        // TODO: Implement merge() method.
+        if ($merger) {
+            $merger->merge($this, $config);
+        } else {
+            $this->hydrate($config->toArray());
+        }
+
+        return $this;
     }
 
-    public function toArray()
+    /**
+     * @param $data
+     * @return $this|void
+     * @throws ConfigException
+     */
+    public function hydrate($data)
+    {
+        $data = Collection::cast($data);
+        $data->each(function ($value, $key) {
+            $this->set($key, $value);
+        });
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function toArray(): array
     {
         $export = [];
         foreach ($this->directives as $directive) {
@@ -199,14 +226,6 @@ class Config implements ConfigInterface
         }
 
         return $export;
-    }
-
-    public function hydrate($data)
-    {
-        // TODO check $data is an array or equivalent
-        foreach ($data as $key => $value) {
-            $this->set($key, $value);
-        }
     }
 
 }
