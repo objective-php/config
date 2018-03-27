@@ -50,7 +50,7 @@ interface ConfigInterface
      * @param MergerInterface|null $merger
      * @return $this
      */
-    public function merge(Config $config, MergerInterface $merger = null);
+    public function merge(ConfigInterface $config);
 
     /**
      * @param DirectiveInterface[] ...$directives
@@ -68,4 +68,9 @@ interface ConfigInterface
      * @return array
      */
     public function toArray(): array;
+
+    /**
+     * @return array
+     */
+    public function getDirectives() : array;
 }

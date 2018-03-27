@@ -33,7 +33,7 @@ abstract class AbstractDirective
 
     public function getKey(): string
     {
-        return $this->key;
+        return $this->key ?: static::KEY;
     }
 
     /**

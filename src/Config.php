@@ -191,13 +191,9 @@ class Config implements ConfigInterface
     /**
      * @inheritdoc
      */
-    public function merge(Config $config, MergerInterface $merger = null)
+    public function merge(ConfigInterface $config)
     {
-        if ($merger) {
-            $merger->merge($this, $config);
-        } else {
-            $this->hydrate($config->toArray());
-        }
+        $this->registerDirective(...array_values($config->getDirectives()));
 
         return $this;
     }
@@ -227,5 +223,14 @@ class Config implements ConfigInterface
 
         return $export;
     }
+
+    /**
+     * @return array
+     */
+    public function getDirectives(): array
+    {
+        return $this->directives;
+    }
+
 
 }

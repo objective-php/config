@@ -29,4 +29,12 @@ class JsonParamsProcessor implements ConfigProcessorInterface
 
     }
 
+    /**
+     * @return array
+     */
+    public function getHandledExtensions(): array
+    {
+        return ['json'];
+    }
+
 }

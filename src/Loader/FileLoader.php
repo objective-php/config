@@ -5,6 +5,7 @@ namespace ObjectivePHP\Config\Loader;
 use ObjectivePHP\Config\ConfigInterface;
 use ObjectivePHP\Config\Exception\ConfigLoadingException;
 use ObjectivePHP\Config\Processor\ConfigProcessorInterface;
+use ObjectivePHP\Config\Processor\JsonParamsProcessor;
 use SplFileInfo;
 
 class FileLoader implements LoaderInterface
@@ -13,17 +14,23 @@ class FileLoader implements LoaderInterface
     /**
      * @var array
      */
-    protected $locations = [];
-
     protected $processors = [];
+
+    /**
+     * FileLoader constructor.
+     * @param array $processors
+     */
+    public function __construct()
+    {
+        $this->registerProcessor(new JsonParamsProcessor());
+    }
+
 
     public function load(...$locations): array
     {
 
         $config = [];
         $localEntries = [];
-
-        $locations = $this->locations + $locations;
 
         foreach ($locations as $location) {
 
@@ -99,6 +106,9 @@ class FileLoader implements LoaderInterface
 
     public function registerProcessor(ConfigProcessorInterface $processor, string ...$handledExtensions)
     {
+        $handledExtensions += $processor->getHandledExtensions();
+        $handledExtensions = array_unique($handledExtensions);
+        
         if (!$handledExtensions) {
             throw new ConfigLoadingException('Param processors must be associated to at least one file extension.');
         }
