@@ -109,6 +109,15 @@ class ConfigTest extends TestCase
 
     }
 
+    public function testFallbackDirectiveHandling()
+    {
+        $config = new Config();
+
+        $config->set('unregistered.directive', 'any value');
+
+        $this->assertEquals('any value', $config->get('unregistered.directive'));
+    }
+
 }
 
 

@@ -5,6 +5,7 @@ namespace ObjectivePHP\Config;
 
 use ObjectivePHP\Config\Directive\ComplexDirectiveInterface;
 use ObjectivePHP\Config\Directive\DirectiveInterface;
+use ObjectivePHP\Config\Directive\FallbackDirective;
 use ObjectivePHP\Config\Directive\MultiValueDirectiveInterface;
 use ObjectivePHP\Config\Directive\ScalarDirectiveInterface;
 use ObjectivePHP\Config\Exception\ConfigException;
@@ -121,7 +122,7 @@ class Config implements ConfigInterface
     {
         // extract actual directive key
         if (!isset($this->directives[$key])) {
-            // add free param
+            $this->registerDirective(new FallbackDirective($key, $value));
         } else {
             $directive = $this->directives[$key];
             if (!$directive instanceof MultiValueDirectiveInterface) {
