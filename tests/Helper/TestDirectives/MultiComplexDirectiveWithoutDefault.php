@@ -11,7 +11,7 @@ namespace Tests\Helper\TestDirectives;
 
 use ObjectivePHP\Config\Directive\AbstractMultiComplexDirective;
 
-class MultiComplexDirective extends AbstractMultiComplexDirective
+class MultiComplexDirectiveWithoutDefault extends AbstractMultiComplexDirective
 {
 
     protected $x;
@@ -19,6 +19,8 @@ class MultiComplexDirective extends AbstractMultiComplexDirective
     protected $y;
 
     protected $key = 'multi-complex';
+
+    protected $ignoreDefault = true;
 
     public function __construct($x, $y)
     {

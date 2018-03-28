@@ -178,7 +178,7 @@ class Config implements ConfigInterface
             }
         } else {
             if ($directive instanceof ComplexDirectiveInterface) {
-                return $this->values[$directive->getKey()];
+                $values = $this->values[$directive->getKey()];
             } else {
 
                 $values = $this->values[$directive->getKey()];
@@ -188,8 +188,13 @@ class Config implements ConfigInterface
                     $value = $value->getValue();
                 }
 
-                return $values;
             }
+
+            if ($directive->isDefaultIgnored()) {
+                unset($values['default']);
+            }
+
+            return $values;
         }
     }
 

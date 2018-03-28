@@ -8,6 +8,7 @@ use ObjectivePHP\Config\Directive\AbstractScalarDirective;
 use ObjectivePHP\Config\Exception\ParamsProcessingException;
 use Tests\Helper\TestDirectives\ComplexDirective;
 use Tests\Helper\TestDirectives\MultiComplexDirective;
+use Tests\Helper\TestDirectives\MultiComplexDirectiveWithoutDefault;
 use Tests\Helper\TestDirectives\MultiScalarDirective;
 
 class ConfigTest extends Unit
@@ -106,6 +107,14 @@ class ConfigTest extends Unit
         $this->expectExceptionCode(ParamsProcessingException::INVALID_VALUE);
 
         $config->set('multi-complex', ['other' => ['not an associative array']]);
+
+    }
+
+    public function testMultiValuesDirectiveWithDefaultIgnored()
+    {
+        $config = new Config(new MultiComplexDirectiveWithoutDefault('default x value', 'default y value'));
+
+        $this->assertEmpty($config->get('multi-complex'));
 
     }
 

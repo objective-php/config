@@ -9,10 +9,9 @@
 namespace Tests\Helper\TestDirectives;
 
 
-use ObjectivePHP\Config\Directive\AbstractScalarDirective;
-use ObjectivePHP\Config\Directive\MultiValueDirectiveInterface;
+use ObjectivePHP\Config\Directive\AbstractMultiScalarDirective;
 
-class MultiScalarDirective extends AbstractScalarDirective implements MultiValueDirectiveInterface
+class MultiScalarDirective extends AbstractMultiScalarDirective
 {
     protected $key = 'multi-scalar';
 }
