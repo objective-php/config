@@ -17,13 +17,11 @@
   ],
   "require": {
     "php": ">=7.0.0",
-    "objective-php/primitives": "1.*",
-    "objective-php/matcher": "1.*",
-    "codeception/codeception": "^2.4"
+    "objective-php/primitives": "^2.0",
+    "objective-php/matcher": "^1.0"
   },
   "require-dev": {
-    "objective-php/phpunit-extension": "1.0",
-    "phpunit/phpunit": "5.*"
+    "codeception/codeception": "^2.4"
   },
   "autoload": {
     "psr-4": {

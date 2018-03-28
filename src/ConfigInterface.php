@@ -69,8 +69,10 @@ interface ConfigInterface
      */
     public function toArray(): array;
 
+    public function has($key): bool;
+
     /**
      * @return array
      */
-    public function getDirectives() : array;
+    public function getDirectives(): array;
 }

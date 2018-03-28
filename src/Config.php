@@ -10,7 +10,6 @@ use ObjectivePHP\Config\Directive\ScalarDirectiveInterface;
 use ObjectivePHP\Config\Exception\ConfigException;
 use ObjectivePHP\Matcher\Matcher;
 use ObjectivePHP\Primitives\Collection\Collection;
-use ObjectivePHP\Primitives\Merger\MergerInterface;
 
 /**
  * Class Config
@@ -60,6 +59,11 @@ class Config implements ConfigInterface
         }
 
         return $this;
+    }
+
+    public function has($key): bool
+    {
+        return isset($this->directives[$key]);
     }
 
     /**
