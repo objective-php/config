@@ -9,12 +9,12 @@
 namespace Tests\ObjectivePHP\Config\Directive;
 
 
+use Codeception\Test\Unit;
 use ObjectivePHP\Config\Config;
 use ObjectivePHP\Config\Exception\ParamsProcessingException;
-use ObjectivePHP\PHPUnit\TestCase;
 use Tests\Helper\TestDirectives\ScalarDirective;
 
-class ScalarDirectiveTest extends TestCase
+class ScalarDirectiveTest extends Unit
 {
 
     public function testDefaultBehaviour()

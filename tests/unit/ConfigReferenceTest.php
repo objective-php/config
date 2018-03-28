@@ -2,10 +2,10 @@
 
 namespace Test\ObjectivePHP\Config;
 
+use Codeception\Test\Unit;
 use ObjectivePHP\Config\ConfigReference;
-use ObjectivePHP\PHPUnit\TestCase;
 
-class ConfigReferenceTest extends TestCase
+class ConfigReferenceTest extends Unit
 {
     public function testToStringImplementation()
     {

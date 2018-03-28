@@ -9,11 +9,11 @@
 namespace Tests\ObjectivePHP\Config\Directive;
 
 
+use Codeception\Test\Unit;
 use ObjectivePHP\Config\Config;
-use ObjectivePHP\PHPUnit\TestCase;
 use Tests\Helper\TestDirectives\ComplexDirective;
 
-class ComplexDirectiveTest extends TestCase
+class ComplexDirectiveTest extends Unit
 {
 
     public function testDefaultBehaviour()

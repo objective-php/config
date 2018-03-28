@@ -2,15 +2,15 @@
 
 namespace Tests\ObjectivePHP\Config;
 
+use Codeception\Test\Unit;
 use ObjectivePHP\Config\Config;
 use ObjectivePHP\Config\Directive\AbstractScalarDirective;
 use ObjectivePHP\Config\Exception\ParamsProcessingException;
-use ObjectivePHP\PHPUnit\TestCase;
 use Tests\Helper\TestDirectives\ComplexDirective;
 use Tests\Helper\TestDirectives\MultiComplexDirective;
 use Tests\Helper\TestDirectives\MultiScalarDirective;
 
-class ConfigTest extends TestCase
+class ConfigTest extends Unit
 {
 
     public function testDirectiveRegistration()
