@@ -11,5 +11,6 @@ namespace ObjectivePHP\Config\Directive;
 
 interface ComplexDirectiveInterface extends DirectiveInterface
 {
-    
+
+    public function toArray(): array;
 }

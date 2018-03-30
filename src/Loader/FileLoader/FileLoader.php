@@ -1,11 +1,10 @@
 <?php
 
-namespace ObjectivePHP\Config\Loader;
+namespace ObjectivePHP\Config\Loader\FileLoader;
 
 use ObjectivePHP\Config\ConfigInterface;
 use ObjectivePHP\Config\Exception\ConfigLoadingException;
-use ObjectivePHP\Config\Processor\ConfigProcessorInterface;
-use ObjectivePHP\Config\Processor\JsonParamsProcessor;
+use ObjectivePHP\Config\Loader\LoaderInterface;
 use SplFileInfo;
 
 class FileLoader implements LoaderInterface
@@ -14,17 +13,22 @@ class FileLoader implements LoaderInterface
     /**
      * @var array
      */
-    protected $processors = [];
+    protected $adapters = [];
 
     /**
      * FileLoader constructor.
-     * @param array $processors
+     * @param array $adapters
      */
-    public function __construct()
+    public function __construct(FileLoaderAdapterInterface ...$adapters)
     {
-        $this->registerProcessor(new JsonParamsProcessor());
+        $this->registerAdapter(new JsonFileLoaderAdapter(), ...$adapters);
+
     }
 
+    public function registerAdapter(FileLoaderAdapterInterface ...$adapters)
+    {
+        $this->adapters = array_merge($this->adapters, $adapters);
+    }
 
     public function load(...$locations): array
     {
@@ -51,9 +55,6 @@ class FileLoader implements LoaderInterface
 
             /** @var $entry \SplFileInfo */
             foreach ($entries as $entry) {
-                if (!isset($this->processors[$entry->getExtension()])) {
-                    continue;
-                }
 
                 // handle local entries later on
                 if (strpos($entry, '.local.')) {
@@ -62,20 +63,13 @@ class FileLoader implements LoaderInterface
                 }
 
                 // get config data
-                $importedConfig = $this->import($entry);
-                if ($importedConfig) {
-                    $config = array_merge($config, $importedConfig);
-                }
+                $config = array_merge($config, $this->process($entry));
             }
         }
 
         // handle local entries,  that should overwrite global ones
         foreach ($localEntries as $entry) {
-            // get config data
-            $importedConfig = $this->import($entry);
-            if ($importedConfig) {
-                $config = array_merge($config, $importedConfig);
-            }
+            $config = array_merge($config, $this->process($entry));
         }
 
         return $config;
@@ -88,33 +82,15 @@ class FileLoader implements LoaderInterface
      * @return array
      * @throws ConfigLoadingException
      */
-    protected function import(SplFileInfo $file): array
+    protected function process(SplFileInfo $file): array
     {
-        if ($file->getExtension() == '.php') {
-            $data = include $file->getRealPath();
-        } else {
-            $data = file_get_contents($file->getRealPath());
+        /** @var FileLoaderAdapterInterface $adapter */
+        foreach ($this->adapters as $adapter) {
+            if ($adapter->doesHandle($file)) return $adapter->process($file->getRealPath());
         }
 
-        $processor = $this->processors[$file->getExtension()];
+        return [];
 
-        $processedData = $processor->process($data);
-
-        return $processedData;
-
-    }
-
-    public function registerProcessor(ConfigProcessorInterface $processor, string ...$handledExtensions)
-    {
-        $handledExtensions += $processor->getHandledExtensions();
-        $handledExtensions = array_unique($handledExtensions);
-        
-        if (!$handledExtensions) {
-            throw new ConfigLoadingException('Param processors must be associated to at least one file extension.');
-        }
-        foreach ($handledExtensions as $extension) {
-            $this->processors[$extension] = $processor;
-        }
     }
 
 }

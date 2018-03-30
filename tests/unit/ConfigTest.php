@@ -127,6 +127,11 @@ class ConfigTest extends Unit
         $this->assertEquals('any value', $config->get('unregistered.directive'));
     }
 
+    public function testParameterProcessing()
+    {
+
+    }
+
 }
 
 

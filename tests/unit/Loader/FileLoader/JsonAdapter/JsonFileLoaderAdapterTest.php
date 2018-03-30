@@ -11,16 +11,15 @@ namespace Tests\ObjectivePHP\Config\Processor;
 
 use Codeception\Test\Unit;
 use ObjectivePHP\Config\Exception\ParamsProcessingException;
-use ObjectivePHP\Config\Processor\JsonParamsProcessor;
+use ObjectivePHP\Config\Loader\FileLoader\JsonFileLoaderAdapter;
 
-class JsonParamsProcessorTest extends Unit
+class JsonFileLoaderAdapterTest extends Unit
 {
 
     public function testSuccessfulJsonProcessing()
     {
 
-        $json = '{"key": "value"}';
-        $params = (new JsonParamsProcessor())->process($json);
+        $params = (new JsonFileLoaderAdapter())->process(__DIR__ . '/valid-json-object.json');
         $this->assertEquals(['key' => 'value'], $params);
 
     }
@@ -29,27 +28,21 @@ class JsonParamsProcessorTest extends Unit
     public function testProcessingJsonString()
     {
 
-        $json = '"valid json string but invalid value"';
-
         $this->expectException(ParamsProcessingException::class);
         $this->expectExceptionCode(ParamsProcessingException::INVALID_VALUE);
 
-        (new JsonParamsProcessor())->process($json);
+        (new JsonFileLoaderAdapter())->process(__DIR__ . '/valid-json-string-invalid-value.json');
 
     }
 
 
     public function testProcessingJsonArray()
     {
-
-        $json = '["valid", "json", "array", "but invalid param value"]';
-
         $this->expectException(ParamsProcessingException::class);
         $this->expectExceptionCode(ParamsProcessingException::INVALID_VALUE);
 
-        (new JsonParamsProcessor())->process($json);
+        (new JsonFileLoaderAdapter())->process(__DIR__ . '/valid-json-array-invalid-value.json');
 
     }
-
 
 }

@@ -62,7 +62,7 @@ interface ConfigInterface
      * @param $data
      * @return $this
      */
-    public function hydrate($data);
+    public function hydrate(array $data);
 
     /**
      * @return array

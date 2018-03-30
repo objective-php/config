@@ -9,7 +9,7 @@
 namespace ObjectivePHP\Config;
 
 
-interface ParamsProviderInterface
+interface ParametersProviderInterface
 {
     public function getParameters(): array;
 }

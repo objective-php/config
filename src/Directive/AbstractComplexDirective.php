@@ -11,6 +11,7 @@ namespace ObjectivePHP\Config\Directive;
 
 use ObjectivePHP\Config\Exception\ParamsProcessingException;
 use ObjectivePHP\Primitives\String\Camel;
+use ObjectivePHP\Primitives\String\Snake;
 
 
 /**
@@ -32,7 +33,7 @@ abstract class AbstractComplexDirective extends AbstractDirective implements Com
     public function hydrate($data)
     {
         if (!is_array($data)) {
-            throw new ParamsProcessingException(sprintf('Hydration of "%s" requires data array. Scalar value passed.', get_class($this)), ParamsProcessingException::INVALID_VALUE);
+            throw new ParamsProcessingException(sprintf('Hydration of "%s" requires data array. %s value passed.', get_class($this), gettype($data)), ParamsProcessingException::INVALID_VALUE);
         }
         foreach ($data as $attribute => $value) {
 
@@ -51,5 +52,20 @@ abstract class AbstractComplexDirective extends AbstractDirective implements Com
 
         return $this;
     }
+
+    public function toArray(): array
+    {
+        $attributes = get_object_vars($this);
+        unset($attributes['key']);
+        unset($attributes['description']);
+        unset($attributes['ignoreDefault']);
+        $array = [];
+        foreach ($attributes as $attribute => $value) {
+            $array[Snake::case($attribute)] = $value;
+        }
+
+        return $array;
+    }
+
 
 }

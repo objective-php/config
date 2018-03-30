@@ -30,7 +30,6 @@ class FallbackDirective extends AbstractDirective implements ScalarDirectiveInte
         $this->value = $value;
     }
 
-
     /**
      * @param $data
      *

@@ -11,8 +11,8 @@ namespace Tests\ObjectivePHP\Config\Loader;
 use Codeception\Test\Unit;
 use ObjectivePHP\Config\Config;
 use ObjectivePHP\Config\ConfigInterface;
-use ObjectivePHP\Config\Loader\FileLoader;
-use ObjectivePHP\Config\Processor\JsonParamsProcessor;
+use ObjectivePHP\Config\Loader\FileLoader\FileLoader;
+use ObjectivePHP\Config\Loader\FileLoader\JsonFileLoaderAdapter;
 use Tests\Helper\TestDirectives\ScalarDirective;
 
 class FileLoaderTest extends Unit
@@ -27,16 +27,15 @@ class FileLoaderTest extends Unit
     public function testRegisteringProcessors()
     {
         $loader = new FileLoader();
-        $loader->registerProcessor($jsonProcessor = new JsonParamsProcessor(), 'json');
+        $loader->registerAdapter($jsonProcessor = new JsonFileLoaderAdapter());
 
-        $this->assertAttributeContains($jsonProcessor, 'processors', $loader);
-        $this->assertAttributeEquals(['json' => $jsonProcessor], 'processors', $loader);
+        $this->assertAttributeContains($jsonProcessor, 'adapters', $loader);
     }
 
     public function testLoadingFile()
     {
         $loader = new FileLoader();
-        $loader->registerProcessor($jsonProcessor = new JsonParamsProcessor(), 'json');
+        $loader->registerAdapter($jsonProcessor = new JsonFileLoaderAdapter());
 
         $config = (new Config())->registerDirective(new ScalarDirective());
 
@@ -50,7 +49,7 @@ class FileLoaderTest extends Unit
     public function testLoadingFolder()
     {
         $loader = new FileLoader();
-        $loader->registerProcessor($jsonProcessor = new JsonParamsProcessor(), 'json');
+        $loader->registerAdapter($jsonProcessor = new JsonFileLoaderAdapter());
 
         $config = (new Config())->registerDirective(new ScalarDirective());
 

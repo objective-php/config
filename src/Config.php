@@ -9,8 +9,7 @@ use ObjectivePHP\Config\Directive\FallbackDirective;
 use ObjectivePHP\Config\Directive\MultiValueDirectiveInterface;
 use ObjectivePHP\Config\Directive\ScalarDirectiveInterface;
 use ObjectivePHP\Config\Exception\ConfigException;
-use ObjectivePHP\Matcher\Matcher;
-use ObjectivePHP\Primitives\Collection\Collection;
+use ObjectivePHP\Config\ParameterProcessor\ParameterProcessorInterface;
 
 /**
  * Class Config
@@ -19,12 +18,6 @@ use ObjectivePHP\Primitives\Collection\Collection;
  */
 class Config implements ConfigInterface
 {
-
-
-    /**
-     * @var Matcher
-     */
-    protected $matcher;
 
     /**
      * @var array Default internal value
@@ -36,10 +29,13 @@ class Config implements ConfigInterface
      */
     protected $values = [];
 
+    /** @var ParameterProcessorInterface[] */
+    protected $parameterProcessors = [];
+
     /**
      * Config constructor.
      *
-     * @param array $input
+     * @param DirectiveInterface[]
      */
     public function __construct(DirectiveInterface ...$directives)
     {
@@ -54,9 +50,19 @@ class Config implements ConfigInterface
     {
         foreach ($directives as $directive) {
             $this->directives[$directive->getKey()] = $directive;
+
             if ($directive instanceof MultiValueDirectiveInterface) {
-                $this->values[$directive->getKey()]['default'] = $directive;
-            }
+                if ($directive instanceof ComplexDirectiveInterface) {
+                    $this->values[$directive->getKey()]['default'] = $directive->toArray();
+                } elseif ($directive instanceof ScalarDirectiveInterface) {
+                    $this->values[$directive->getKey()]['default'] = $directive->getValue();
+                }
+            } else
+                if ($directive instanceof ScalarDirectiveInterface) {
+                    $this->values[$directive->getKey()] = $directive->getValue();
+                } else {
+                    $this->values[$directive->getKey()] = $directive->toArray();
+                }
         }
 
         return $this;
@@ -67,97 +73,6 @@ class Config implements ConfigInterface
         return isset($this->directives[$key]);
     }
 
-    /**
-     * Extract a configuration subset
-     *
-     * This will return a new Config object, only containing values whose identifiers match
-     * the given filter.
-     *
-     * @param $filter
-     *
-     * @return Config
-     */
-    public function subset($filter)
-    {
-        $filterLength = strlen($filter) + 1; // + 1 for the '.' following the prefix
-
-        $subset = new Config();
-        foreach ($this as $key => $value) {
-            if ($this->getMatcher()->match($filter, $key)) {
-                $subset->set(substr($key, $filterLength), $value);
-            }
-        }
-
-        return $subset;
-    }
-
-    /**
-     * @return Matcher
-     */
-    public function getMatcher(): Matcher
-    {
-        if (is_null($this->matcher)) {
-            $this->matcher = new Matcher();
-        }
-
-        return $this->matcher;
-    }
-
-    /**
-     * @param Matcher $matcher
-     *
-     * @return $this
-     */
-    public function setMatcher(Matcher $matcher)
-    {
-        $this->matcher = $matcher;
-
-        return $this;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function set($key, $value): ConfigInterface
-    {
-        // extract actual directive key
-        if (!isset($this->directives[$key])) {
-            $this->registerDirective(new FallbackDirective($key, $value));
-        } else {
-            $directive = $this->directives[$key];
-            if (!$directive instanceof MultiValueDirectiveInterface) {
-                $directive->hydrate($value);
-            } else {
-
-                if (!is_array($value)) {
-                    throw new ConfigException(sprintf('MultiValueDirective "%s" must be hydrated using an array.',
-                        get_class($this)));
-                }
-
-                foreach ($value as $reference => $data) {
-
-                    if (!isset($this->values[$key][$reference])) {
-                        /** @var ComplexDirectiveInterface $newInstance */
-                        $newInstance = clone $this->values[$key]['default'];
-                        $newInstance->hydrate($data);
-
-                        if (is_int($reference)) {
-                            $this->values[$key][] = $newInstance;
-                        } else {
-                            $this->values[$key][$reference] = $newInstance;
-                        }
-                    } else {
-                        /** @var DirectiveInterface $directive */
-                        $directive = $this->values[$key][$reference];
-                        $directive->hydrate($data);
-                    }
-                }
-
-            }
-        }
-
-        return $this;
-    }
 
     /**
      * @inheritdoc
@@ -172,30 +87,68 @@ class Config implements ConfigInterface
 
         if (!$directive instanceof MultiValueDirectiveInterface) {
             if ($directive instanceof ScalarDirectiveInterface) {
-                return $directive->getValue();
+                return $this->processParameter($directive->getValue(), $directive);
             } else {
-                return $directive;
+                $instance = (clone $directive)->hydrate($this->processParameters($this->values[$key], $directive));
+                return $instance;
             }
         } else {
-            if ($directive instanceof ComplexDirectiveInterface) {
-                $values = $this->values[$directive->getKey()];
-            } else {
+            codecept_debug($this->values);
+            $data = $this->values[$directive->getKey()];
+            $parameters = [];
+            foreach ($data as $id => $instanceParameters) {
 
-                $values = $this->values[$directive->getKey()];
+                if ($id == 'default' && $directive->isDefaultIgnored()) continue;
 
-                /** @var ScalarDirectiveInterface $value */
-                foreach ($values as &$value) {
-                    $value = $value->getValue();
+                if (is_scalar($instanceParameters)) {
+                    $instanceParameters = $this->processParameter($instanceParameters, $directive);
+                } else {
+                    array_walk_recursive($instanceParameters, function (&$parameter) use ($directive) {
+                        $parameter = $this->processParameter($parameter, $directive);
+                    });
                 }
 
+                codecept_debug($instanceParameters);
+                if (($directive instanceof ScalarDirectiveInterface)) {
+                    $instance = (clone $directive)->hydrate($instanceParameters)->getValue();
+                } else {
+                    $instance = (clone $directive)->hydrate($instanceParameters);
+                }
+
+                $parameters[$id] = $instance;
             }
 
-            if ($directive->isDefaultIgnored()) {
-                unset($values['default']);
-            }
 
-            return $values;
+            return $parameters;
         }
+    }
+
+    public function processParameter($parameter, DirectiveInterface $directive)
+    {
+        foreach ($this->getParameterProcessors() as $processor) {
+            if ($processor->doesHandle($parameter, $directive)) {
+                return $processor->process($parameter, $directive);
+            }
+        }
+
+        return $parameter;
+    }
+
+    /**
+     * @return ParameterProcessorInterface[]
+     */
+    public function getParameterProcessors(): array
+    {
+        return $this->parameterProcessors;
+    }
+
+    protected function processParameters(array $data, $directive)
+    {
+        array_walk_recursive($data, function (&$parameter) use ($directive) {
+            $parameter = $this->processParameter($parameter, $directive);
+        });
+
+        return $data;
     }
 
     /**
@@ -213,12 +166,53 @@ class Config implements ConfigInterface
      * @return $this|void
      * @throws ConfigException
      */
-    public function hydrate($data)
+    public function hydrate(array $data)
     {
-        $data = Collection::cast($data);
-        $data->each(function ($value, $key) {
+        foreach ($data as $key => $value) {
             $this->set($key, $value);
-        });
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function set($key, $value): ConfigInterface
+    {
+        // extract actual directive key
+        if (!isset($this->directives[$key])) {
+            $this->registerDirective(new FallbackDirective($key, $value));
+            $this->values[$key] = $value;
+
+        } else {
+            $directive = $this->directives[$key];
+            if (!$directive instanceof MultiValueDirectiveInterface) {
+                $this->values[$key] = $value;
+            } else {
+
+                if (!is_array($value)) {
+                    throw new ConfigException(sprintf('MultiValueDirective "%s" must be hydrated using an array.',
+                        get_class($this)));
+                }
+
+                foreach ($value as $reference => $data) {
+
+                    if (!isset($this->values[$key][$reference])) {
+
+                        if (is_int($reference)) {
+                            $this->values[$key][] = $data;
+                        } else {
+                            $this->values[$key][$reference] = $data;
+                        }
+                    } else {
+                        /** @var DirectiveInterface $directive */
+                        $this->values[$key][$reference] = $data;
+                    }
+                }
+
+            }
+        }
+
+        return $this;
     }
 
     /**
@@ -242,5 +236,12 @@ class Config implements ConfigInterface
         return $this->directives;
     }
 
+    /**
+     * @param ParameterProcessorInterface[] $parameterProcessors
+     */
+    public function registerParameterProcessor(ParameterProcessorInterface ...$parameterProcessors)
+    {
+        $this->parameterProcessors += $parameterProcessors;
+    }
 
 }

@@ -1,7 +1,8 @@
 <?php
+
 namespace ObjectivePHP\Config;
 
-class ConfigReference
+class ParameterReference
 {
 
     /**
@@ -24,6 +25,6 @@ class ConfigReference
 
     public function __toString()
     {
-        return (string) $this->id;
+        return (string)$this->id;
     }
 }
