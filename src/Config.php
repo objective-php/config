@@ -9,7 +9,9 @@ use ObjectivePHP\Config\Directive\FallbackDirective;
 use ObjectivePHP\Config\Directive\MultiValueDirectiveInterface;
 use ObjectivePHP\Config\Directive\ScalarDirectiveInterface;
 use ObjectivePHP\Config\Exception\ConfigException;
+use ObjectivePHP\Config\Exception\ParamsProcessingException;
 use ObjectivePHP\Config\ParameterProcessor\ParameterProcessorInterface;
+use ObjectivePHP\Config\ParameterProcessor\ParameterReferenceParameterProcessor;
 
 /**
  * Class Config
@@ -40,6 +42,9 @@ class Config implements ConfigInterface
     public function __construct(DirectiveInterface ...$directives)
     {
         $this->registerDirective(...$directives);
+
+        // register default parameter processor
+        $this->registerParameterProcessor((new ParameterReferenceParameterProcessor())->setConfig($this));
     }
 
     /**
@@ -68,11 +73,18 @@ class Config implements ConfigInterface
         return $this;
     }
 
+    /**
+     * @param ParameterProcessorInterface[] $parameterProcessors
+     */
+    public function registerParameterProcessor(ParameterProcessorInterface ...$parameterProcessors)
+    {
+        $this->parameterProcessors += $parameterProcessors;
+    }
+
     public function has($key): bool
     {
         return isset($this->directives[$key]);
     }
-
 
     /**
      * @inheritdoc
@@ -87,13 +99,17 @@ class Config implements ConfigInterface
 
         if (!$directive instanceof MultiValueDirectiveInterface) {
             if ($directive instanceof ScalarDirectiveInterface) {
-                return $this->processParameter($directive->getValue(), $directive);
+                return $this->processParameter($this->values[$key], $directive);
             } else {
-                $instance = (clone $directive)->hydrate($this->processParameters($this->values[$key], $directive));
+                try {
+                    $processedParameters = $this->processParameters($this->values[$key], $directive);
+                } catch (\Throwable $exception) {
+                    throw new ParamsProcessingException('Unable to process parameters', ParamsProcessingException::INVALID_VALUE, $exception);
+                }
+                $instance = (clone $directive)->hydrate($processedParameters);
                 return $instance;
             }
         } else {
-            codecept_debug($this->values);
             $data = $this->values[$directive->getKey()];
             $parameters = [];
             foreach ($data as $id => $instanceParameters) {
@@ -108,7 +124,6 @@ class Config implements ConfigInterface
                     });
                 }
 
-                codecept_debug($instanceParameters);
                 if (($directive instanceof ScalarDirectiveInterface)) {
                     $instance = (clone $directive)->hydrate($instanceParameters)->getValue();
                 } else {
@@ -234,14 +249,6 @@ class Config implements ConfigInterface
     public function getDirectives(): array
     {
         return $this->directives;
-    }
-
-    /**
-     * @param ParameterProcessorInterface[] $parameterProcessors
-     */
-    public function registerParameterProcessor(ParameterProcessorInterface ...$parameterProcessors)
-    {
-        $this->parameterProcessors += $parameterProcessors;
     }
 
 }

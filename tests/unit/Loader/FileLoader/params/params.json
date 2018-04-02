@@ -1,3 +1,4 @@
 {
-  "scalar": "scalar value from json"
+  "scalar": "scalar value from json",
+  "y": "param(x)"
 }

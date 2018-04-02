@@ -22,12 +22,15 @@ class ConfigTest extends Unit
 
         $config->registerDirective($directive);
 
-        $this->assertSame($directive, $config->get('complex'));
+        $this->assertEquals($directive, $config->get('complex'));
 
 
     }
 
-
+    /**
+     * @throws ParamsProcessingException
+     * @throws \ObjectivePHP\Config\Exception\ConfigException
+     */
     public function testHydratingScalarDirective()
     {
         $config = new Config();
@@ -61,6 +64,7 @@ class ConfigTest extends Unit
         $this->expectException(ParamsProcessingException::class);
 
         $config->set('complex', 'scalar value');
+        $config->get('complex');
 
     }
 
@@ -82,7 +86,7 @@ class ConfigTest extends Unit
         $this->expectExceptionCode(ParamsProcessingException::INVALID_VALUE);
 
         $config->set('multi-scalar', ['custom' => ['not scalar value']]);
-
+        $config->get('multi-scalar');
     }
 
     public function testRegisteringMultiComplexDirective()
@@ -107,6 +111,7 @@ class ConfigTest extends Unit
         $this->expectExceptionCode(ParamsProcessingException::INVALID_VALUE);
 
         $config->set('multi-complex', ['other' => ['not an associative array']]);
+        $config->get('multi-complex');
 
     }
 
@@ -127,9 +132,34 @@ class ConfigTest extends Unit
         $this->assertEquals('any value', $config->get('unregistered.directive'));
     }
 
-    public function testParameterProcessing()
+    public function testParameterProcessingForScalar()
     {
+        $config = new Config();
 
+        $config->set('x', 'x value');
+        $config->set('y', 'param(x)');
+
+        $this->assertEquals('x value', $config->get('y'));
+    }
+
+    public function testParameterProcessingForComplex()
+    {
+        $config = new Config();
+        $config->registerDirective(new ComplexDirective('param(x)', 'param y'));
+
+        $config->set('x', 'x value');
+
+        $this->assertEquals('x value', $config->get('complex')->getX());
+    }
+
+    public function testParameterProcessingForMultiComplex()
+    {
+        $config = new Config();
+        $config->registerDirective(new MultiComplexDirective('param(x)', 'param y'));
+
+        $config->set('x', 'x value');
+
+        $this->assertEquals('x value', $config->get('multi-complex')['default']->getX());
     }
 
 }

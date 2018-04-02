@@ -24,7 +24,7 @@ class ComplexDirectiveTest extends Unit
 
         $config->registerDirective($directive);
 
-        $this->assertSame($directive, $config->get('complex'));
+        $this->assertEquals($directive, $config->get('complex'));
 
         $this->assertEquals('x', $config->get('complex')->getX());
     }

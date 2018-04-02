@@ -1,3 +1,4 @@
 {
-  "scalar": "overridden local value"
+  "scalar": "overridden local value",
+  "x": "a"
 }

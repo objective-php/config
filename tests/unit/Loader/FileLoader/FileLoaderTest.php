@@ -44,6 +44,7 @@ class FileLoaderTest extends Unit
         $config->hydrate($params);
 
         $this->assertEquals('scalar value from json', $config->get('scalar'));
+
     }
 
     public function testLoadingFolder()
@@ -58,6 +59,9 @@ class FileLoaderTest extends Unit
         $config->hydrate($params);
 
         $this->assertEquals('overridden local value', $config->get('scalar'));
+        $this->assertEquals('a', $config->get('y'));
+        $config->set('x', 'b');
+        $this->assertEquals('b', $config->get('y'));
     }
 
 }

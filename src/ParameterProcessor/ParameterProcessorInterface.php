@@ -17,7 +17,7 @@ interface ParameterProcessorInterface
 
     public function setConfig(ConfigInterface $config);
 
-    public function process($parameter, DirectiveInterface $config);
+    public function process($parameter, DirectiveInterface $directive);
 
     public function doesHandle($parameter, DirectiveInterface $config): bool;
 }

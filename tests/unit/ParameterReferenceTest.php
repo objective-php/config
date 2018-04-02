@@ -14,7 +14,7 @@ class ParameterReferenceTest extends Unit
         $this->assertEquals('config-name', (string)$configRef);
     }
 
-    public function testgetId()
+    public function testGetId()
     {
         $configRef = new ParameterReference('config-name');
 

@@ -41,7 +41,7 @@ abstract class AbstractParameterProcessor implements ParameterProcessorInterface
     /**
      * @param mixed $referenceKeyword
      */
-    public function setReferenceKeyword($referenceKeyword)
+    public function setReferenceKeyword(string $referenceKeyword)
     {
         $this->referenceKeyword = $referenceKeyword;
     }
@@ -63,11 +63,11 @@ abstract class AbstractParameterProcessor implements ParameterProcessorInterface
     }
 
     /**
-     * @param $expression
-     * @return null|object
+     * @param $parameter
+     * @return string
      */
 
-    protected function parseParameter($parameter): bool
+    protected function parseParameter($parameter)
     {
         return substr($parameter, strlen($this->getReferenceKeyword()) + 1, -1);
     }
