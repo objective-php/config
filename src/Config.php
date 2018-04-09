@@ -81,7 +81,8 @@ class Config implements ConfigInterface
         foreach ($parameterProcessors as $parameterProcessor) {
             $parameterProcessor->setConfig($this);
         }
-        $this->parameterProcessors += $parameterProcessors;
+        $this->parameterProcessors = array_merge($this->parameterProcessors, $parameterProcessors);
+        return $this;
     }
 
     /**

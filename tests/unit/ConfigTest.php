@@ -6,6 +6,7 @@ use Codeception\Test\Unit;
 use ObjectivePHP\Config\Config;
 use ObjectivePHP\Config\Directive\AbstractScalarDirective;
 use ObjectivePHP\Config\Exception\ParamsProcessingException;
+use ObjectivePHP\Config\ParameterProcessor\ParameterProcessorInterface;
 use Tests\Helper\TestDirectives\ComplexDirective;
 use Tests\Helper\TestDirectives\MultiComplexDirective;
 use Tests\Helper\TestDirectives\MultiComplexDirectiveWithoutDefault;
@@ -162,6 +163,14 @@ class ConfigTest extends Unit
         $this->assertEquals('x value', $config->get('multi-complex')['default']->getX());
     }
 
+    public function testREgisteringMultipleParameterProcessors()
+    {
+        $config = new Config();
+
+        $config->registerParameterProcessor($this->makeEmpty(ParameterProcessorInterface::class));
+
+        $this->assertCount(2, $config->getParameterProcessors());
+    }
 }
 
 
