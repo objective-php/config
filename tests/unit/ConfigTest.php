@@ -163,7 +163,7 @@ class ConfigTest extends Unit
         $this->assertEquals('x value', $config->get('multi-complex')['default']->getX());
     }
 
-    public function testREgisteringMultipleParameterProcessors()
+    public function testRegisteringMultipleParameterProcessors()
     {
         $config = new Config();
 

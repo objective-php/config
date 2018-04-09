@@ -11,5 +11,7 @@ namespace ObjectivePHP\Config;
 
 interface ConfigProviderInterface
 {
-    public function getConfig() : ConfigInterface;
+    public function getConfig(): ConfigInterface;
+
+    public function hasConfig(): bool;
 }
