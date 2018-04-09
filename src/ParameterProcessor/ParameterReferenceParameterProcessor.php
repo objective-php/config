@@ -10,7 +10,6 @@ namespace ObjectivePHP\Config\ParameterProcessor;
 
 
 use ObjectivePHP\Config\ConfigInterface;
-use ObjectivePHP\Config\Directive\DirectiveInterface;
 
 class ParameterReferenceParameterProcessor extends AbstractParameterProcessor
 {
@@ -20,7 +19,7 @@ class ParameterReferenceParameterProcessor extends AbstractParameterProcessor
     /** @var ConfigInterface */
     protected $config;
 
-    public function process($parameter, DirectiveInterface $directive)
+    public function process($parameter)
     {
         $directiveKey = $this->parseParameter($parameter);
         if ($directiveKey) {

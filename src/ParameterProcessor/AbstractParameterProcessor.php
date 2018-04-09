@@ -10,7 +10,6 @@ namespace ObjectivePHP\Config\ParameterProcessor;
 
 
 use ObjectivePHP\Config\ConfigInterface;
-use ObjectivePHP\Config\Directive\DirectiveInterface;
 
 abstract class AbstractParameterProcessor implements ParameterProcessorInterface
 {
@@ -21,7 +20,7 @@ abstract class AbstractParameterProcessor implements ParameterProcessorInterface
 
     protected $referenceKeyword;
 
-    public function doesHandle($parameter, DirectiveInterface $directive): bool
+    public function doesHandle($parameter): bool
     {
         $startPattern = $this->getReferenceKeyword() . '(';
         $endPattern = ')';

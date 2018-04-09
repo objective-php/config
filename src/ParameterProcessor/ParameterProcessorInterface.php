@@ -10,14 +10,12 @@ namespace ObjectivePHP\Config\ParameterProcessor;
 
 
 use ObjectivePHP\Config\ConfigInterface;
-use ObjectivePHP\Config\Directive\DirectiveInterface;
 
 interface ParameterProcessorInterface
 {
-
     public function setConfig(ConfigInterface $config);
 
-    public function process($parameter, DirectiveInterface $directive);
+    public function process($parameter);
 
-    public function doesHandle($parameter, DirectiveInterface $config): bool;
+    public function doesHandle($parameter): bool;
 }

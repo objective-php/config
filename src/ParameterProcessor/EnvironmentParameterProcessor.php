@@ -9,14 +9,12 @@
 namespace ObjectivePHP\Config\ParameterProcessor;
 
 
-use ObjectivePHP\Config\Directive\DirectiveInterface;
-
 class EnvironmentParameterProcessor extends AbstractParameterProcessor
 {
 
     protected $referenceKeyword = 'env';
 
-    public function process($parameter, DirectiveInterface $directive)
+    public function process($parameter)
     {
         $environmentVariable = $this->parseParameter($parameter);
 
