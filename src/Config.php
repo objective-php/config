@@ -78,9 +78,16 @@ class Config implements ConfigInterface
      */
     public function registerParameterProcessor(ParameterProcessorInterface ...$parameterProcessors)
     {
+        foreach ($parameterProcessors as $parameterProcessor) {
+            $parameterProcessor->setConfig($this);
+        }
         $this->parameterProcessors += $parameterProcessors;
     }
 
+    /**
+     * @param $key
+     * @return bool
+     */
     public function has($key): bool
     {
         return isset($this->directives[$key]);
@@ -99,10 +106,10 @@ class Config implements ConfigInterface
 
         if (!$directive instanceof MultiValueDirectiveInterface) {
             if ($directive instanceof ScalarDirectiveInterface) {
-                return $this->processParameter($this->values[$key], $directive);
+                return $this->processParameter($this->values[$key]);
             } else {
                 try {
-                    $processedParameters = $this->processParameters($this->values[$key], $directive);
+                    $processedParameters = $this->processParameters($this->values[$key]);
                 } catch (\Throwable $exception) {
                     throw new ParamsProcessingException('Unable to process parameters', ParamsProcessingException::INVALID_VALUE, $exception);
                 }
@@ -138,11 +145,15 @@ class Config implements ConfigInterface
         }
     }
 
-    public function processParameter($parameter, DirectiveInterface $directive)
+    /**
+     * @param $parameter
+     * @return mixed
+     */
+    public function processParameter($parameter)
     {
         foreach ($this->getParameterProcessors() as $processor) {
-            if ($processor->doesHandle($parameter, $directive)) {
-                return $processor->process($parameter, $directive);
+            if ($processor->doesHandle($parameter)) {
+                return $processor->process($parameter);
             }
         }
 
@@ -157,10 +168,14 @@ class Config implements ConfigInterface
         return $this->parameterProcessors;
     }
 
-    protected function processParameters(array $data, $directive)
+    /**
+     * @param array $data
+     * @return array
+     */
+    protected function processParameters(array $data)
     {
-        array_walk_recursive($data, function (&$parameter) use ($directive) {
-            $parameter = $this->processParameter($parameter, $directive);
+        array_walk_recursive($data, function (&$parameter) {
+            $parameter = $this->processParameter($parameter);
         });
 
         return $data;

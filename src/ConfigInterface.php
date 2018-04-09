@@ -11,6 +11,7 @@ namespace ObjectivePHP\Config;
 
 
 use ObjectivePHP\Config\Directive\DirectiveInterface;
+use ObjectivePHP\Config\ParameterProcessor\ParameterProcessorInterface;
 use ObjectivePHP\Primitives\Merger\MergerInterface;
 
 /**
@@ -69,10 +70,19 @@ interface ConfigInterface
      */
     public function toArray(): array;
 
+    /**
+     * @param $key
+     * @return bool
+     */
     public function has($key): bool;
 
     /**
      * @return array
      */
     public function getDirectives(): array;
+
+    /**
+     * @param ParameterProcessorInterface[] $parameterProcessors
+     */
+    public function registerParameterProcessor(ParameterProcessorInterface ...$parameterProcessors);
 }
