@@ -172,7 +172,7 @@ class Config implements ConfigInterface
      * @param array $data
      * @return array
      */
-    protected function processParameters(array $data)
+    public function processParameters(array $data)
     {
         array_walk_recursive($data, function (&$parameter) {
             $parameter = $this->processParameter($parameter);
