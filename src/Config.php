@@ -6,6 +6,7 @@ namespace ObjectivePHP\Config;
 use ObjectivePHP\Config\Directive\ComplexDirectiveInterface;
 use ObjectivePHP\Config\Directive\DirectiveInterface;
 use ObjectivePHP\Config\Directive\FallbackDirective;
+use ObjectivePHP\Config\Directive\IgnoreDefaultInterface;
 use ObjectivePHP\Config\Directive\MultiValueDirectiveInterface;
 use ObjectivePHP\Config\Directive\ScalarDirectiveInterface;
 use ObjectivePHP\Config\Exception\ConfigException;
@@ -122,14 +123,16 @@ class Config implements ConfigInterface
             $parameters = [];
             foreach ($data as $id => $instanceParameters) {
 
-                if ($id == 'default' && $directive->isDefaultIgnored()) continue;
+                if ($id == 'default' && $directive instanceof IgnoreDefaultInterface) continue;
 
-                if (is_scalar($instanceParameters)) {
-                    $instanceParameters = $this->processParameter($instanceParameters, $directive);
-                } else {
-                    array_walk_recursive($instanceParameters, function (&$parameter) use ($directive) {
-                        $parameter = $this->processParameter($parameter, $directive);
-                    });
+                if(!is_null($instanceParameters)) {
+                    if (is_scalar($instanceParameters)) {
+                        $instanceParameters = $this->processParameter($instanceParameters, $directive);
+                    } else {
+                        array_walk_recursive($instanceParameters, function (&$parameter) use ($directive) {
+                            $parameter = $this->processParameter($parameter, $directive);
+                        });
+                    }
                 }
 
                 if (($directive instanceof ScalarDirectiveInterface)) {

@@ -11,5 +11,5 @@ namespace ObjectivePHP\Config\Directive;
 
 interface MultiValueDirectiveInterface extends DirectiveInterface
 {
-    public function isDefaultIgnored(): bool;
+
 }
