@@ -10,8 +10,9 @@ namespace Tests\Helper\TestDirectives;
 
 
 use ObjectivePHP\Config\Directive\AbstractMultiComplexDirective;
+use ObjectivePHP\Config\Directive\IgnoreDefaultInterface;
 
-class MultiComplexDirectiveWithoutDefault extends AbstractMultiComplexDirective
+class MultiComplexDirectiveWithoutDefault extends AbstractMultiComplexDirective implements IgnoreDefaultInterface
 {
 
     protected $x;
@@ -19,8 +20,6 @@ class MultiComplexDirectiveWithoutDefault extends AbstractMultiComplexDirective
     protected $y;
 
     protected $key = 'multi-complex';
-
-    protected $ignoreDefault = true;
 
     public function __construct($x, $y)
     {
