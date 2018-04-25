@@ -35,6 +35,7 @@ abstract class AbstractComplexDirective extends AbstractDirective implements Com
         if (!is_array($data)) {
             throw new ParamsProcessingException(sprintf('Hydration of "%s" requires data array. %s value passed.', get_class($this), gettype($data)), ParamsProcessingException::INVALID_VALUE);
         }
+        
         foreach ($data as $attribute => $value) {
 
             if (is_int($attribute)) {

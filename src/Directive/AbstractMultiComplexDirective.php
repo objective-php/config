@@ -19,5 +19,5 @@ namespace ObjectivePHP\Config\Directive;
  */
 abstract class AbstractMultiComplexDirective extends AbstractComplexDirective implements MultiValueDirectiveInterface
 {
-
+    use MultiValueDirectiveTrait;
 }

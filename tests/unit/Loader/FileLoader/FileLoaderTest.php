@@ -37,7 +37,7 @@ class FileLoaderTest extends Unit
         $loader = new FileLoader();
         $loader->registerAdapter($jsonProcessor = new JsonFileLoaderAdapter());
 
-        $config = (new Config())->registerDirective(new ScalarDirective());
+        $config = (new Config())->registerDirective(new ScalarDirective())->registerDirective(new ScalarDirective(null, 'x'))->registerDirective(new ScalarDirective(null, 'y'));
 
         $params = $loader->load(__DIR__ . '/params/params.json');
 
@@ -50,9 +50,10 @@ class FileLoaderTest extends Unit
     public function testLoadingFolder()
     {
         $loader = new FileLoader();
-        $loader->registerAdapter($jsonProcessor = new JsonFileLoaderAdapter());
+        $config = (new Config())->registerDirective(new ScalarDirective())->registerDirective(new ScalarDirective(null,
+            'x'))->registerDirective(new ScalarDirective(null, 'y'))
+        ;
 
-        $config = (new Config())->registerDirective(new ScalarDirective());
 
         $params = $loader->load(__DIR__ . '/params');
 

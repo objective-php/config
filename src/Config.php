@@ -127,15 +127,15 @@ class Config implements ConfigInterface
         } else {
             $data       = $this->values[$directive->getKey()];
             $parameters = [];
-            foreach ($data as $id => $instanceParameters) {
+            foreach ($data as $reference => $instanceParameters) {
                 
-                if ($id == 'default' && $directive instanceof IgnoreDefaultInterface) {
+                if ($reference == 'default' && ($directive instanceof IgnoreDefaultInterface || is_null($instanceParameters))) {
                     continue;
                 }
-                
                 if (!is_null($instanceParameters)) {
                     try {
                         if (is_scalar($instanceParameters)) {
+                            
                             $instanceParameters = $this->processParameter($instanceParameters, $directive);
                         } else {
                             array_walk_recursive($instanceParameters, function (&$parameter) use ($directive) {
@@ -155,7 +155,7 @@ class Config implements ConfigInterface
                     $instance = (clone $directive)->hydrate($instanceParameters);
                 }
                 
-                $parameters[$id] = $instance;
+                $parameters[$reference] = $instance;
             }
             
             
@@ -274,18 +274,16 @@ class Config implements ConfigInterface
     {
         // extract actual directive key
         if (!isset($this->directives[$key])) {
-            $this->registerDirective(new FallbackDirective($key, $value));
-            $this->values[$key] = $value;
-            
-        } else {
+            throw new ConfigException(sprintf('No directive has been registered for key "%s"', $key), ConfigException::MISSING_DIRECTIVE);
+        }
             $directive = $this->directives[$key];
             if (!$directive instanceof MultiValueDirectiveInterface) {
                 $this->values[$key] = $value;
             } else {
                 
                 if (!is_array($value)) {
-                    throw new ConfigException(sprintf('MultiValueDirective "%s" must be hydrated using an array.',
-                        get_class($this)));
+                    throw new ParamsProcessingException(sprintf('MultiValueDirective "%s" must be hydrated using an associative array.',
+                        get_class($this)), ParamsProcessingException::INVALID_VALUE);
                 }
                 
                 foreach ($value as $reference => $data) {
@@ -293,7 +291,8 @@ class Config implements ConfigInterface
                     if (!isset($this->values[$key][$reference])) {
                         
                         if (is_int($reference)) {
-                            $this->values[$key][] = $data;
+                            throw new ParamsProcessingException(sprintf('MultiValueDirective "%s" must be hydrated using an associative array.',
+                                get_class($this)), ParamsProcessingException::INVALID_VALUE);
                         } else {
                             $this->values[$key][$reference] = $data;
                         }
@@ -304,7 +303,6 @@ class Config implements ConfigInterface
                 }
                 
             }
-        }
         
         return $this;
     }

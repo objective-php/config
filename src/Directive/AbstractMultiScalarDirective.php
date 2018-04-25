@@ -19,4 +19,5 @@ namespace ObjectivePHP\Config\Directive;
  */
 abstract class AbstractMultiScalarDirective extends AbstractScalarDirective implements MultiValueDirectiveInterface
 {
+    use MultiValueDirectiveTrait;
 }
