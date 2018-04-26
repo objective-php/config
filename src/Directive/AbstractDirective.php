@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the Objective PHP project
  *
@@ -9,7 +10,6 @@
 
 namespace ObjectivePHP\Config\Directive;
 
-
 /**
  * Class AbstractDirective
  *
@@ -19,6 +19,7 @@ namespace ObjectivePHP\Config\Directive;
  */
 abstract class AbstractDirective
 {
+    const KEY = '';
 
     /**
      * @var string Unique directive identifier in the Config object
@@ -26,11 +27,8 @@ abstract class AbstractDirective
     protected $key;
 
     /**
-     * @var string Directive description (for documentation generation)
+     * @return string
      */
-    protected $description;
-
-
     public function getKey(): string
     {
         return $this->key ?: static::KEY;
@@ -38,28 +36,12 @@ abstract class AbstractDirective
 
     /**
      * @param string $key
+     *
+     * @return AbstractDirective
      */
     public function setKey(string $key)
     {
         $this->key = strtolower($key);
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getDescription(): string
-    {
-        return $this->description;
-    }
-
-    /**
-     * @param string $description
-     */
-    public function setDescription(string $description)
-    {
-        $this->description = $description;
 
         return $this;
     }

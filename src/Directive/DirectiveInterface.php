@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the Objective PHP project
  *
@@ -16,20 +17,13 @@ namespace ObjectivePHP\Config\Directive;
  */
 interface DirectiveInterface
 {
-
-
     /**
      * @return string
      */
     public function getKey(): string;
 
     /**
-     * @return string
-     */
-    public function getDescription(): string;
-    
-    /**
-     * @param $data
+     * @param mixed $data
      *
      * @return mixed
      */

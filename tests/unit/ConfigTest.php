@@ -176,7 +176,7 @@ class ConfigTest extends Unit
 
         $this->assertCount(2, $config->getParameterProcessors());
     }
-    
+
     /**
      * @throws ConfigException
      * @throws ParamsProcessingException
@@ -185,18 +185,18 @@ class ConfigTest extends Unit
     {
         $config = new Config();
         $config->registerDirective(new MultiScalarDirective());
-        
+
         $config->hydrate([
             'multi-scalar' => [
                 'reference' => 'y'
             ]
         ]);
-        
+
         $this->assertEquals('y', $config->get('multi-scalar')['reference']);
-        
+
         $this->expectException(ConfigException::class);
         $this->expectExceptionCode(ParamsProcessingException::INVALID_VALUE);
-    
+
         $config->hydrate(['multi-scalar' => ['y']]);
     }
 }
@@ -205,5 +205,4 @@ class ConfigTest extends Unit
 class TestScalarDirective extends AbstractScalarDirective
 {
     protected $key = 'test';
-
 }

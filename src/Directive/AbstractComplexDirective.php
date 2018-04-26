@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the Objective PHP project
  *
@@ -13,7 +14,6 @@ use ObjectivePHP\Config\Exception\ParamsProcessingException;
 use ObjectivePHP\Primitives\String\Camel;
 use ObjectivePHP\Primitives\String\Snake;
 
-
 /**
  * Class AbstractDirective
  *
@@ -23,21 +23,16 @@ use ObjectivePHP\Primitives\String\Snake;
  */
 abstract class AbstractComplexDirective extends AbstractDirective implements ComplexDirectiveInterface
 {
-
-
     /**
-     * @param $value
-     *
-     * @return $this
+     * {@inheritdoc}
      */
     public function hydrate($data)
     {
         if (!is_array($data)) {
             throw new ParamsProcessingException(sprintf('Hydration of "%s" requires data array. %s value passed.', get_class($this), gettype($data)), ParamsProcessingException::INVALID_VALUE);
         }
-        
-        foreach ($data as $attribute => $value) {
 
+        foreach ($data as $attribute => $value) {
             if (is_int($attribute)) {
                 throw new ParamsProcessingException(sprintf('Complex directives must be hydrated using associative arrays. Integer key was provided.'), ParamsProcessingException::INVALID_VALUE);
             }
@@ -54,12 +49,13 @@ abstract class AbstractComplexDirective extends AbstractDirective implements Com
         return $this;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function toArray(): array
     {
         $attributes = get_object_vars($this);
         unset($attributes['key']);
-        unset($attributes['description']);
-        unset($attributes['ignoreDefault']);
         $array = [];
         foreach ($attributes as $attribute => $value) {
             $array[Snake::case($attribute)] = $value;
@@ -67,6 +63,4 @@ abstract class AbstractComplexDirective extends AbstractDirective implements Com
 
         return $array;
     }
-
-
 }
