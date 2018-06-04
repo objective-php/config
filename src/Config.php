@@ -263,6 +263,9 @@ class Config implements ConfigInterface
     public function hydrate(array $data)
     {
         foreach ($data as $key => $value) {
+            if (!isset($this->directives[$key])) {
+                continue;
+            }
             $this->set($key, $value);
         }
     }
