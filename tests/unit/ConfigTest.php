@@ -32,6 +32,23 @@ class ConfigTest extends Unit
 
     /**
      * @throws ParamsProcessingException
+     * @throws ConfigException
+     */
+    public function testHydrationMustIgnoreNoneDirectiveKeys()
+    {
+        $config = new Config();
+
+        $directive = new TestScalarDirective('default value');
+
+        $config->registerDirective($directive);
+
+        $config->hydrate(['test' => 'ok', 'uselessConfigKey' => 'must ignore']);
+
+        $this->assertEquals('ok', $config->get('test'));
+    }
+
+    /**
+     * @throws ParamsProcessingException
      * @throws \ObjectivePHP\Config\Exception\ConfigException
      */
     public function testHydratingScalarDirective()
