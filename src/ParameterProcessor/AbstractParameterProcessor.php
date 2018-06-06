@@ -1,16 +1,14 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: gde
- * Date: 29/03/2018
- * Time: 13:38
- */
 
 namespace ObjectivePHP\Config\ParameterProcessor;
 
-
 use ObjectivePHP\Config\ConfigInterface;
 
+/**
+ * Class AbstractParameterProcessor
+ *
+ * @package ObjectivePHP\Config\ParameterProcessor
+ */
 abstract class AbstractParameterProcessor implements ParameterProcessorInterface
 {
     /**
@@ -18,15 +16,28 @@ abstract class AbstractParameterProcessor implements ParameterProcessorInterface
      */
     protected $config;
 
+    /**
+     * @var string
+     */
     protected $referenceKeyword;
 
+    /**
+     * {@inheritdoc}
+     */
     public function doesHandle($parameter): bool
     {
         $startPattern = $this->getReferenceKeyword() . '(';
         $endPattern = ')';
 
-        return substr($parameter, 0, strlen($startPattern)) === $startPattern && substr($parameter, -1) === $endPattern;
+        if (!is_scalar($parameter)) {
+            if (is_object($parameter) && method_exists($parameter, '__toString')) {
+                $parameter = (string) $parameter;
+            } else {
+                return false;
+            }
+        }
 
+        return substr($parameter, 0, strlen($startPattern)) === $startPattern && substr($parameter, -1) === $endPattern;
     }
 
     /**
@@ -65,10 +76,8 @@ abstract class AbstractParameterProcessor implements ParameterProcessorInterface
      * @param $parameter
      * @return string
      */
-
     protected function parseParameter($parameter)
     {
         return substr($parameter, strlen($this->getReferenceKeyword()) + 1, -1);
     }
-
 }
