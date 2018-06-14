@@ -156,7 +156,7 @@ class ConfigTest extends Unit
     public function testParameterProcessingForScalar()
     {
         $config = (new Config())->registerDirective(new ScalarDirective(null, 'x'))
-        ->registerDirective(new ScalarDirective(null, 'y'));
+            ->registerDirective(new ScalarDirective(null, 'y'));
 
         $config->set('x', 'x value');
         $config->set('y', 'param(x)');
@@ -168,7 +168,7 @@ class ConfigTest extends Unit
     {
         $config = new Config();
         $config->registerDirective(new ComplexDirective('param(x)', 'param y'))
-        ->registerDirective(new ScalarDirective(null, 'x'));
+            ->registerDirective(new ScalarDirective(null, 'x'));
 
         $config->set('x', 'x value');
 
@@ -205,17 +205,32 @@ class ConfigTest extends Unit
 
         $config->hydrate([
             'multi-scalar' => [
-                'reference' => 'y'
+                'x' => 'y'
             ]
         ]);
 
-        $this->assertEquals('y', $config->get('multi-scalar')['reference']);
+        $this->assertEquals('y', $config->get('multi-scalar')['x']);
 
         $this->expectException(ConfigException::class);
         $this->expectExceptionCode(ParamsProcessingException::INVALID_VALUE);
 
         $config->hydrate(['multi-scalar' => ['y']]);
     }
+
+    public function testMultiComplexDirectivesGetTheirReferenceHydrated()
+    {
+        $config = new Config();
+        $config->registerDirective(new MultiComplexDirective('x', 'y'));
+
+        $config->hydrate([
+            'multi-complex' => [
+                'test.reference' => ['x' => 'a', 'y' => 'b']
+            ]
+        ]);
+
+        $this->assertEquals('test.reference', $config->get('multi-complex')['test.reference']->getReference());
+    }
+
 }
 
 
