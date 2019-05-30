@@ -11,5 +11,8 @@ namespace ObjectivePHP\Config;
 
 interface ParametersProviderInterface
 {
+    /**
+     * @return array Config parameters that will be used to hydrate a Config instance
+     */
     public function getParameters(): array;
 }

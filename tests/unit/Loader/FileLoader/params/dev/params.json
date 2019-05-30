@@ -1,0 +1,4 @@
+{
+  "y": "value for dev only",
+  "complex": {"prop": "overridden", "other": "value"}
+}

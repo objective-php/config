@@ -1,4 +1,5 @@
 {
   "scalar": "scalar value from json",
-  "y": "param(x)"
+  "y": "param(x)",
+  "complex": {"prop": "value"}
 }

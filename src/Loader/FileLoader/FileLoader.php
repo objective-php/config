@@ -3,17 +3,22 @@
 namespace ObjectivePHP\Config\Loader\FileLoader;
 
 use ObjectivePHP\Config\ConfigInterface;
+use ObjectivePHP\Config\Exception\ConfigException;
 use ObjectivePHP\Config\Exception\ConfigLoadingException;
+use ObjectivePHP\Config\Loader\AbstractLoader;
 use ObjectivePHP\Config\Loader\LoaderInterface;
 use SplFileInfo;
+use DirectoryIterator;
 
-class FileLoader implements LoaderInterface
+class FileLoader extends AbstractLoader
 {
 
     /**
      * @var array
      */
     protected $adapters = [];
+
+    protected $loadingEnvironmentSpecificResources = false;
 
     /**
      * FileLoader constructor.
@@ -33,7 +38,7 @@ class FileLoader implements LoaderInterface
     public function load(...$locations): array
     {
 
-        $config = [];
+        $parameters = [];
         $localEntries = [];
 
         foreach ($locations as $location) {
@@ -47,32 +52,50 @@ class FileLoader implements LoaderInterface
             }
 
             if (is_dir($locationRealPath)) {
-                $directory = new \RecursiveDirectoryIterator($locationRealPath, \RecursiveDirectoryIterator::FOLLOW_SYMLINKS);
-                $entries = new \RecursiveIteratorIterator($directory);
+                $entries = new DirectoryIterator($locationRealPath);
             } else {
                 $entries = [new SplFileInfo($locationRealPath)];
             }
 
+
             /** @var $entry \SplFileInfo */
             foreach ($entries as $entry) {
-
+                if($entry->isDir()) continue;
                 // handle local entries later on
-                if (strpos($entry, '.local.')) {
-                    $localEntries[] = $entry;
+                if (strpos($entry->getFilename(), '.local.')) {
+                    $localEntries[] = clone $entry;
                     continue;
                 }
 
                 // get config data
-                $config = array_merge($config, $this->process($entry));
+                $parameters = array_merge($parameters, $this->process($entry));
             }
         }
 
         // handle local entries,  that should overwrite global ones
-        foreach ($localEntries as $entry) {
-            $config = array_merge($config, $this->process($entry));
+        foreach ($localEntries as $localEntry) {
+            $parameters = array_merge($parameters, $this->process($localEntry));
         }
 
-        return $config;
+        // if current environment is set, try to load environment specific values
+        if (($env = $this->getEnv()) && !$this->loadingEnvironmentSpecificResources) {
+            $this->loadingEnvironmentSpecificResources = true;
+            $envLocations = [];
+            foreach ($locations as $location) {
+                $envLocation = $location . DIRECTORY_SEPARATOR . $env;
+                if (is_dir($envLocation)) {
+                    $envLocations[] = $envLocation;
+                }
+            }
+
+            $envConfig = $this->load(...$envLocations);
+            $parameters = $this->merge($parameters, $envConfig);
+
+            $this->loadingEnvironmentSpecificResources = false;
+        }
+
+
+        return $parameters;
     }
 
     /**
@@ -90,7 +113,41 @@ class FileLoader implements LoaderInterface
         }
 
         return [];
-
     }
 
+
+    protected function merge($config, $other)
+    {
+        foreach($config as $key => $value)
+        {
+            if(array_key_exists($key, $other)) {
+               switch(true) {
+                   case is_null($other[$key]):
+
+                       $config[$key] = null;
+                       break;
+
+                   case is_scalar($config[$key]):
+                       if(is_scalar($other[$key])) {
+                           $config[$key] = $other[$key];
+                       } else {
+                           throw new ConfigException(sprintf('Key "%s" currently contains a scalar value. This can not be overriden with non-scalar value.', $key));
+                       }
+                       break;
+
+                   case is_array($config[$key]):
+                       if(is_array($other[$key])) {
+                           $config[$key] = array_merge($config[$key], $other[$key]);
+                       } else {
+                           throw new ConfigException(sprintf('Key "%s" currently contains an array. This can not be merged with non-array value.', $key));
+                       }
+                       break;
+               }
+
+            }
+
+        }
+
+        return $config;
+    }
 }

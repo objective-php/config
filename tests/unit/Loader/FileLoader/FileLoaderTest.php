@@ -11,6 +11,7 @@ namespace Tests\ObjectivePHP\Config\Loader;
 use Codeception\Test\Unit;
 use ObjectivePHP\Config\Config;
 use ObjectivePHP\Config\ConfigInterface;
+use ObjectivePHP\Config\Directive\AbstractComplexDirective;
 use ObjectivePHP\Config\Loader\FileLoader\FileLoader;
 use ObjectivePHP\Config\Loader\FileLoader\JsonFileLoaderAdapter;
 use Tests\Helper\TestDirectives\ScalarDirective;
@@ -51,8 +52,7 @@ class FileLoaderTest extends Unit
     {
         $loader = new FileLoader();
         $config = (new Config())->registerDirective(new ScalarDirective())->registerDirective(new ScalarDirective(null,
-            'x'))->registerDirective(new ScalarDirective(null, 'y'))
-        ;
+            'x'))->registerDirective(new ScalarDirective(null, 'y'));
 
 
         $params = $loader->load(__DIR__ . '/params');
@@ -64,5 +64,74 @@ class FileLoaderTest extends Unit
         $config->set('x', 'b');
         $this->assertEquals('b', $config->get('y'));
     }
+
+    public function testLoadingFolderIncludingEnvSpecificSubFolder()
+    {
+        $loader = (new FileLoader())->setEnv('dev');
+        $config = (new Config())
+            //->registerDirective(new ScalarDirective())
+            ->registerDirective(new ScalarDirective(null, 'x'))
+            ->registerDirective(new ScalarDirective(null, 'y'))
+            ->registerDirective(new ComplexDirective())
+        ;
+
+
+        $params = $loader->load(__DIR__ . '/params');
+
+        $config->hydrate($params);
+
+        $this->assertEquals('value for dev only', $config->get('y'));
+        $this->assertEquals('overridden', $config->get('complex')->getProp());
+        $this->assertEquals('value', $config->get('complex')->getOther());
+
+    }
+
+}
+
+class ComplexDirective extends AbstractComplexDirective
+{
+
+    const KEY = 'complex';
+
+    protected $prop;
+
+    protected $other;
+
+    /**
+     * @return mixed
+     */
+    public function getProp()
+    {
+        return $this->prop;
+    }
+
+    /**
+     * @param mixed $prop
+     * @return ComplexDirective
+     */
+    public function setProp($prop)
+    {
+        $this->prop = $prop;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getOther()
+    {
+        return $this->other;
+    }
+
+    /**
+     * @param mixed $other
+     * @return ComplexDirective
+     */
+    public function setOther($other)
+    {
+        $this->other = $other;
+        return $this;
+    }
+
 
 }

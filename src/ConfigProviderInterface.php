@@ -8,7 +8,10 @@
 
 namespace ObjectivePHP\Config;
 
-
+/**
+ * Interface ConfigProviderInterface
+ * @package ObjectivePHP\Config
+ */
 interface ConfigProviderInterface
 {
     public function getConfig(): ConfigInterface;
