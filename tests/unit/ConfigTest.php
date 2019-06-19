@@ -2,9 +2,10 @@
 
 namespace Tests\ObjectivePHP\Config;
 
-use Codeception\Test\Unit;
+use Codeception\TestCase\Test;
 use ObjectivePHP\Config\Config;
 use ObjectivePHP\Config\Directive\AbstractScalarDirective;
+use ObjectivePHP\Config\Directive\ScalarDirective;
 use ObjectivePHP\Config\Exception\ConfigException;
 use ObjectivePHP\Config\Exception\ParamsProcessingException;
 use ObjectivePHP\Config\ParameterProcessor\ParameterProcessorInterface;
@@ -12,9 +13,8 @@ use Tests\Helper\TestDirectives\ComplexDirective;
 use Tests\Helper\TestDirectives\MultiComplexDirective;
 use Tests\Helper\TestDirectives\MultiComplexDirectiveWithoutDefault;
 use Tests\Helper\TestDirectives\MultiScalarDirective;
-use Tests\Helper\TestDirectives\ScalarDirective;
 
-class ConfigTest extends Unit
+class ConfigTest extends Test
 {
 
     public function testDirectiveRegistration()
@@ -92,7 +92,7 @@ class ConfigTest extends Unit
     {
         $config = new Config(new MultiScalarDirective('default value'));
 
-        $this->assertInternalType('array', $config->get('multi-scalar'));
+        $this->assertIsArray($config->get('multi-scalar'));
         $this->assertCount(1, $config->get('multi-scalar'));
         $this->assertArrayHasKey('default', $config->get('multi-scalar'));
 
@@ -114,7 +114,7 @@ class ConfigTest extends Unit
         $config = new Config(new MultiComplexDirective('default x value', 'default y value'));
 
 
-        $this->assertInternalType('array', $config->get('multi-complex'));
+        $this->assertIsArray($config->get('multi-complex'));
         $this->assertCount(1, $config->get('multi-complex'));
         $this->assertArrayHasKey('default', $config->get('multi-complex'));
 
@@ -155,8 +155,8 @@ class ConfigTest extends Unit
 
     public function testParameterProcessingForScalar()
     {
-        $config = (new Config())->registerDirective(new ScalarDirective(null, 'x'))
-            ->registerDirective(new ScalarDirective(null, 'y'));
+        $config = (new Config())->registerDirective(new TestScalarDirective(null, 'x'))
+            ->registerDirective(new TestScalarDirective(null, 'y'));
 
         $config->set('x', 'x value');
         $config->set('y', 'param(x)');
@@ -168,7 +168,7 @@ class ConfigTest extends Unit
     {
         $config = new Config();
         $config->registerDirective(new ComplexDirective('param(x)', 'param y'))
-            ->registerDirective(new ScalarDirective(null, 'x'));
+            ->registerDirective(new TestScalarDirective(null, 'x'));
 
         $config->set('x', 'x value');
 
@@ -178,7 +178,8 @@ class ConfigTest extends Unit
     public function testParameterProcessingForMultiComplex()
     {
         $config = new Config();
-        $config->registerDirective(new MultiComplexDirective('param(x)', 'param y'))->registerDirective(new ScalarDirective(null, 'x'));
+        $config->registerDirective(new MultiComplexDirective('param(x)',
+            'param y'))->registerDirective(new TestScalarDirective(null, 'x'));
 
         $config->set('x', 'x value');
 
@@ -231,8 +232,16 @@ class ConfigTest extends Unit
         $this->assertEquals('test.reference', $config->get('multi-complex')['test.reference']->getReference());
     }
 
-}
+    public function testBasicDirectives()
+    {
+        $config = new  Config();
 
+        $config->registerDirective(new ScalarDirective('param', 'value'));
+
+        $this->assertEquals('value', $config->get('param'));
+    }
+
+}
 
 class TestScalarDirective extends AbstractScalarDirective
 {

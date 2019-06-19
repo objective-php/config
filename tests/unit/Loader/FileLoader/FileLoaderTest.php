@@ -25,12 +25,13 @@ class FileLoaderTest extends Unit
      *
      * @return ConfigInterface
      */
-    public function testRegisteringProcessors()
+    public function testRegisteringAdapters()
     {
         $loader = new FileLoader();
-        $loader->registerAdapter($jsonProcessor = new JsonFileLoaderAdapter());
+        $jsonFileLoaderAdapter = new JsonFileLoaderAdapter();
+        $loader->registerAdapter($jsonFileLoaderAdapter);
 
-        $this->assertAttributeContains($jsonProcessor, 'adapters', $loader);
+        $this->assertSame($jsonFileLoaderAdapter, $loader->getAdapters()[1]);
     }
 
     public function testLoadingFile()
@@ -38,7 +39,8 @@ class FileLoaderTest extends Unit
         $loader = new FileLoader();
         $loader->registerAdapter($jsonProcessor = new JsonFileLoaderAdapter());
 
-        $config = (new Config())->registerDirective(new ScalarDirective())->registerDirective(new ScalarDirective(null, 'x'))->registerDirective(new ScalarDirective(null, 'y'));
+        $config = (new Config())->registerDirective(new ScalarDirective())->registerDirective(new ScalarDirective(null,
+            'x'))->registerDirective(new ScalarDirective(null, 'y'));
 
         $params = $loader->load(__DIR__ . '/params/params.json');
 
@@ -72,8 +74,7 @@ class FileLoaderTest extends Unit
             //->registerDirective(new ScalarDirective())
             ->registerDirective(new ScalarDirective(null, 'x'))
             ->registerDirective(new ScalarDirective(null, 'y'))
-            ->registerDirective(new ComplexDirective())
-        ;
+            ->registerDirective(new ComplexDirective());
 
 
         $params = $loader->load(__DIR__ . '/params');

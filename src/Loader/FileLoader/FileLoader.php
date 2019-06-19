@@ -2,13 +2,12 @@
 
 namespace ObjectivePHP\Config\Loader\FileLoader;
 
+use DirectoryIterator;
 use ObjectivePHP\Config\ConfigInterface;
 use ObjectivePHP\Config\Exception\ConfigException;
 use ObjectivePHP\Config\Exception\ConfigLoadingException;
 use ObjectivePHP\Config\Loader\AbstractLoader;
-use ObjectivePHP\Config\Loader\LoaderInterface;
 use SplFileInfo;
-use DirectoryIterator;
 
 class FileLoader extends AbstractLoader
 {
@@ -60,7 +59,9 @@ class FileLoader extends AbstractLoader
 
             /** @var $entry \SplFileInfo */
             foreach ($entries as $entry) {
-                if($entry->isDir()) continue;
+                if ($entry->isDir()) {
+                    continue;
+                }
                 // handle local entries later on
                 if (strpos($entry->getFilename(), '.local.')) {
                     $localEntries[] = clone $entry;
@@ -109,7 +110,9 @@ class FileLoader extends AbstractLoader
     {
         /** @var FileLoaderAdapterInterface $adapter */
         foreach ($this->adapters as $adapter) {
-            if ($adapter->doesHandle($file)) return $adapter->process($file->getRealPath());
+            if ($adapter->doesHandle($file)) {
+                return $adapter->process($file->getRealPath());
+            }
         }
 
         return [];
@@ -118,36 +121,42 @@ class FileLoader extends AbstractLoader
 
     protected function merge($config, $other)
     {
-        foreach($config as $key => $value)
-        {
-            if(array_key_exists($key, $other)) {
-               switch(true) {
-                   case is_null($other[$key]):
+        foreach ($config as $key => $value) {
+            if (array_key_exists($key, $other)) {
+                switch (true) {
+                    case is_null($other[$key]):
 
-                       $config[$key] = null;
-                       break;
+                        $config[$key] = null;
+                        break;
 
-                   case is_scalar($config[$key]):
-                       if(is_scalar($other[$key])) {
-                           $config[$key] = $other[$key];
-                       } else {
-                           throw new ConfigException(sprintf('Key "%s" currently contains a scalar value. This can not be overriden with non-scalar value.', $key));
-                       }
-                       break;
+                    case is_scalar($config[$key]):
+                        if (is_scalar($other[$key])) {
+                            $config[$key] = $other[$key];
+                        } else {
+                            throw new ConfigException(sprintf('Key "%s" currently contains a scalar value. This can not be overriden with non-scalar value.',
+                                $key));
+                        }
+                        break;
 
-                   case is_array($config[$key]):
-                       if(is_array($other[$key])) {
-                           $config[$key] = array_merge($config[$key], $other[$key]);
-                       } else {
-                           throw new ConfigException(sprintf('Key "%s" currently contains an array. This can not be merged with non-array value.', $key));
-                       }
-                       break;
-               }
+                    case is_array($config[$key]):
+                        if (is_array($other[$key])) {
+                            $config[$key] = array_merge($config[$key], $other[$key]);
+                        } else {
+                            throw new ConfigException(sprintf('Key "%s" currently contains an array. This can not be merged with non-array value.',
+                                $key));
+                        }
+                        break;
+                }
 
             }
 
         }
 
         return $config;
+    }
+
+    public function getAdapters()
+    {
+        return $this->adapters;
     }
 }

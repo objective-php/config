@@ -11,8 +11,8 @@ namespace Tests\ObjectivePHP\Config\Directive;
 
 use Codeception\Test\Unit;
 use ObjectivePHP\Config\Config;
+use ObjectivePHP\Config\Directive\ScalarDirective;
 use ObjectivePHP\Config\Exception\ParamsProcessingException;
-use Tests\Helper\TestDirectives\ScalarDirective;
 
 class ScalarDirectiveTest extends Unit
 {
@@ -21,11 +21,11 @@ class ScalarDirectiveTest extends Unit
     {
         $config = new Config();
 
-        $directive = new ScalarDirective('x');
+        $directive = new ScalarDirective('test', 'x');
 
         $config->registerDirective($directive);
 
-        $this->assertEquals('x', $config->get('scalar'));
+        $this->assertEquals('x', $config->get('test'));
 
     }
 
@@ -34,7 +34,7 @@ class ScalarDirectiveTest extends Unit
         $this->expectException(ParamsProcessingException::class);
         $this->expectExceptionCode(ParamsProcessingException::INVALID_VALUE);
 
-        new ScalarDirective(['not a scalar value']);
+        new ScalarDirective('test', ['not a scalar value']);
 
     }
 
@@ -43,7 +43,7 @@ class ScalarDirectiveTest extends Unit
         $this->expectException(ParamsProcessingException::class);
         $this->expectExceptionCode(ParamsProcessingException::INVALID_VALUE);
 
-        (new ScalarDirective())->hydrate(['not a scalar value']);
+        (new ScalarDirective('test'))->hydrate(['not a scalar value']);
 
     }
 }
